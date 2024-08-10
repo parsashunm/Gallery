@@ -24,7 +24,16 @@ urlpatterns = [
     path('products/', include('products.urls', namespace='products')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('orders/', include('orders.urls', namespace='orders')),
+    # def-spectacular
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # oAuth2
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
+
+
+# admin panel
+admin.site.site_title = "GalleryAP"
+admin.site.index_title = "Control Panel"
+admin.site.site_header = "WELCOME Boss"

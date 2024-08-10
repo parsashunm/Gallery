@@ -4,13 +4,14 @@ from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView
 )
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+#
 from products.serializers import (
     ProductsImageSerializer,
     ProductsSerializer,
 )
-from products.models import (
-    Product
-)
+from products.models import Product
+#
 
 
 class ProductsListView(ListAPIView):

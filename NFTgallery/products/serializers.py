@@ -5,11 +5,18 @@ from .models import Product, ProductsImage
 class ProductsImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductsImage
-        fields = '__all__'
+        exclude = ('id',)
 
 
 class ProductsSerializer(serializers.ModelSerializer):
-    image = ProductsImageSerializer(many=True)
+    image = ProductsImageSerializer()
+
+    class Meta:
+        model = Product
+        exclude = ['slug', 'created_at']
+
+
+class ProductsCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product

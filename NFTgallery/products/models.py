@@ -6,10 +6,10 @@ from unidecode import unidecode
 
 class Product(models.Model):
     title = models.CharField(max_length=128)
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='products')
-    image = models.ManyToManyField('ProductsImage')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
+    image = models.ForeignKey('ProductsImage', on_delete=models.PROTECT, related_name='product')
     price = models.PositiveIntegerField()
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, null=True)
     descriptions = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

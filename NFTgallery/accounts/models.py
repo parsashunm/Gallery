@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from oauth2_provider.models import AbstractApplication
 #
 from .managers import UserManager
 
@@ -72,3 +73,7 @@ class OTP(models.Model):
         if datetime.now(tz=pytz.timezone('Asia/Tehran')) >= rtime:
             return True
         return False
+
+
+class Application(AbstractApplication):
+    pass

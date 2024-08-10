@@ -1,13 +1,23 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUsrAdmin
 # 
-from .models import User, OTP, Wallet, Cards
+from .models import (
+    User,
+    OTP,
+    Wallet,
+    Cards,
+)
 from .forms import UserCreationForm
 
 # register accounts
 admin.site.register(OTP)
 admin.site.register(Wallet)
 #
+
+
+class CardInLine(admin.TabularInline):
+    model = Cards
+    extra = 1
 
 
 @admin.register(User)
@@ -57,6 +67,8 @@ class UserAdmin(BaseUsrAdmin):
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
+
+    inlines = [CardInLine]
 
 
 @admin.register(Cards)

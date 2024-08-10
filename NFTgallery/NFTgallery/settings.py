@@ -40,12 +40,13 @@ INSTALLED_APPS = [
     'rest_framework',
     # third-party apps,
     'drf_spectacular',
+    'storages',
+    'oauth2_provider',
     # my apps
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
     'home.apps.HomeConfig',
     'orders.apps.OrdersConfig',
-    'storages',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 ]
 
 ROOT_URLCONF = 'NFTgallery.urls'
@@ -136,12 +139,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',)
 }
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'oauth2_provider.backends.OAuth2Backend',
+)
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 36000,
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.OAuthLibCore',
+    'OAUTH2_VALIDATOR_CLASS': 'oauth2_provider.oauth2_validators.OAuth2Validator',
+}
+
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Gallery API',
-    'DESCRIPTION': 'this is the first version of Gallery API\nmore features will be added soon',
-    'VERSION': '1.0.0',
+    'DESCRIPTION': 'for any question <a href="https://t.me/parsashunm">text me</a>',
+    'VERSION': '1.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
