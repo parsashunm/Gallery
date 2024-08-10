@@ -25,11 +25,11 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('orders/', include('orders.urls', namespace='orders')),
     # def-spectacular
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # oAuth2
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
 
 
