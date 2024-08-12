@@ -44,20 +44,7 @@ class Wallet(models.Model):
     balance = models.IntegerField(default='0')
 
     def __str__(self):
-        return f'{self.owner.username}'
-
-
-class Cards(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cards')
-    card_number = models.CharField(max_length=16, null=True, blank=True)
-    is_verified = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = 'Card'
-        verbose_name_plural = 'Cards'
-
-    def __str__(self):
-        return f'{self.owner.username} | {self.card_number[:4]} *** {self.card_number[12:16]}'
+        return f'{self.owner.username}\'s wallet'
 
 
 class OTP(models.Model):
@@ -74,6 +61,3 @@ class OTP(models.Model):
             return True
         return False
 
-
-class Application(AbstractApplication):
-    pass

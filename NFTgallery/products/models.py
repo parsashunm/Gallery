@@ -12,6 +12,8 @@ class Product(models.Model):
     slug = models.SlugField(unique=True, null=True)
     descriptions = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    is_buyable = models.BooleanField(default=False)
+    is_sold = models.BooleanField(default=False)
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None

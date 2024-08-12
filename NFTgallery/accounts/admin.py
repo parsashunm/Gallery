@@ -5,7 +5,6 @@ from .models import (
     User,
     OTP,
     Wallet,
-    Cards,
 )
 from .forms import UserCreationForm
 
@@ -15,17 +14,12 @@ admin.site.register(Wallet)
 #
 
 
-class CardInLine(admin.TabularInline):
-    model = Cards
-    extra = 1
-
-
 @admin.register(User)
 class UserAdmin(BaseUsrAdmin):
     # form = UserChangeForm
     add_form = UserCreationForm
 
-    list_display = ('username', 'phone', 'is_verified')
+    list_display = ('id', 'username', 'phone', 'is_verified')
     readonly_fields = ['last_login']
     list_filter = ['is_admin', 'is_verified']
     search_fields = ('username', 'phone')
@@ -67,10 +61,3 @@ class UserAdmin(BaseUsrAdmin):
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
-
-    inlines = [CardInLine]
-
-
-@admin.register(Cards)
-class ModelNameAdmin(admin.ModelAdmin):
-    list_filter = ['is_verified']
