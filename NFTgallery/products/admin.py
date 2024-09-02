@@ -1,8 +1,10 @@
 from django.contrib import admin
 #
-from .models import Product, ProductsImage
+from .models import (
+    Product, ProductsImage, Auction, AuctionProduct,
+)
 #
-# register simper models here
+admin.site.register(Auction)
 #
 
 
@@ -14,3 +16,18 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(ProductsImage)
 class ProductsImageAdmin(admin.ModelAdmin):
     list_display = ['id']
+
+
+@admin.register(AuctionProduct)
+class AuctionProductsAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (' ', {
+            'fields':
+            [
+                'auction',
+                'product',
+                'base_price',
+                'minimum_bid_increment',
+            ]
+        })
+    ]

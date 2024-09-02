@@ -3,9 +3,9 @@ from datetime import timedelta
 import os
 
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'NFTgallery.settings')
 
-celery_app = Celery('shop')
+celery_app = Celery('NFTgallery')
 celery_app.autodiscover_tasks()
 
 celery_app.conf.broker_url = 'amqp://'

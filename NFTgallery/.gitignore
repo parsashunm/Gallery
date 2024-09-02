@@ -75,6 +75,10 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+accounts/migrations/*
+products/migrations/*
+home/migrations/*
+orders/migrations/*
 
 # Flask stuff:
 instance/

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,10 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'channels',
     # third-party apps,
     'drf_spectacular',
     'storages',
     'oauth2_provider',
+    'azbankgateways',
     # my apps
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
@@ -80,6 +83,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'NFTgallery.wsgi.application'
+ASGI_APPLICATION = 'NFTgallery.asgi.application'
+# ASGI_APPLICATION = 'NFTgallery.asgi.application'
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -185,3 +190,33 @@ AWS_STORAGE_BUCKET_NAME = 'parsashunm'
 AWS_SERVICE_NAME = 's3'
 AWS_S3_FILE_OVERWRITE = False
 AWS_LOCAL_STORAGE = f'{BASE_DIR}/aws/'
+
+
+# payment_portal
+AZ_IRANIAN_BANK_GATEWAYS = {
+    "SEP": {
+            "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
+            "TERMINAL_CODE": "<YOUR TERMINAL CODE>",
+    },
+    "IDPAY": {
+        'MERCHENT_CODE': 'test',
+        'METHOD': 'POST',
+        'X_SANDBOX': 1
+    },
+    "DEFAULT": "IDPAY",
+    "CURRENCY": "IRT",
+    "TRACKING_CODE_QUERY_PARAM": "tc",
+    "TRACKING_CODE_LENGTH": 16,
+    "SETTING_VALUE_READER_CLASS": "azbankgateways.readers.DefaultReader",
+    "IS_SAFE_GET_GATEWAY_PAYMENT": False,
+    "CUSTOM_APP": 'NFTgallery:orders',
+}
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+
+# channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
