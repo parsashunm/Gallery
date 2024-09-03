@@ -1,13 +1,10 @@
 import datetime
 import json
 import uuid
-import ghasedak_sms
 import requests
 
 
 def send_otp(num, code):
-    # instance
-    sms_api = ghasedak_sms.Ghasedak(api_key="be8c7924979fd0faa68edd5fa269b3795017b6ab131129e58e41b940450ad5e1xixsT2zP5aRFhkEx")
     cri = str(uuid.uuid4())
     # new one
     payload = json.dumps({
@@ -33,4 +30,3 @@ def send_otp(num, code):
 
     res = requests.request('POST', url="https://gateway.ghasedak.me/rest/api/v1/WebService/SendOtpSMS",
                            headers=headers, data=payload)
-    print(f'{cri} {res.status_code}')
