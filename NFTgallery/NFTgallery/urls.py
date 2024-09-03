@@ -17,9 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from azbankgateways.urls import az_bank_gateways_urls
+#
+from orders.views import BuyProductView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # my apps
     path('', include('home.urls', namespace='home')),
     path('products/', include('products.urls', namespace='products')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
@@ -30,6 +34,9 @@ urlpatterns = [
     path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # oAuth2
     path('ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    # bank-gateways
+    path('bank/', az_bank_gateways_urls()),
+    path('go-to-getway/<int:user_id>/<int:price>/', BuyProductView.as_view())
 ]
 
 

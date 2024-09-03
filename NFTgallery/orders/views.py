@@ -1,69 +1,15 @@
-# from django.http import HttpResponse
-# from django.shortcuts import redirect, render
-# from rest_framework.views import APIView
-# #
-# from products.models import Product
-# from .payment_portal import ZarinPal
-#
-#
-# class BuyProductView(APIView):
-#
-#     """
-#     this end-point will use for purchase the arts
-#     """
-#
-#     def get(self, request, product_id):
-#         product = Product.objects.get(pk=product_id)
-#         request.session['order_pay'] = {'product_id': product_id}
-#         payment_payload = {
-#             'Description': 'test',
-#             'Phone': '12345678900',
-#             'Amount': product.price,
-#             'CallbackURL': 'http://127.0.0.1:8000/orders/purchase/verify/'
-#         }
-#         payment = ZarinPal(payment_payload)
-#         result = payment.getResponse('payment')
-#         if result['status']:
-#             authority = result['authority']
-#             return redirect(result['STARTPAY'].format(authority))
-#         else:
-#             code = result['code']
-#             return HttpResponse(f"Error code: {code}")
-#
-#
-# class VerifyPurchaseView(APIView):
-#
-#     """
-#     this view is gonna verify or reject the purchase
-#     """
-#
-#     def get(self, request):
-#         product_id = int(request.session['order_pay']['product_id'])
-#         product = Product.objects.get(id=product_id)
-#         authority = request.GET.get('Authority')
-#         verify_payload = {
-#             'Amount': product.price,
-#             'Authority': authority
-#         }
-#         verify = ZarinPal(verify_payload)
-#         result = verify.getResponse('verify')
-#         if result['status']:
-#             RefID = result['RefID']
-#             return HttpResponse(f"Transaction success.\nRefID: {RefID}")
-#         else:
-#             code = result['code']
-#             return HttpResponse(f"Transaction failed or canceled.\ncode: {code}")
-########################################################################################################
-########################################################################################################
-########################################################################################################
-########################################################################################################
-from django.http import HttpResponse
+from django.conf import settings
+from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
 from rest_framework.views import APIView
-
-from accounts.models import User
+from azbankgateways import (
+    bankfactories,
+    models as bank_models,
+    default_settings as settings,
+)
 #
-from .payment_portal import ZarinPal
+from accounts.models import User
+from orders.payment_portal import go_to_gateway_view
 #
 
 
@@ -77,20 +23,7 @@ class BuyProductView(APIView):
     def get(self, request, *args, **kwargs):
         user = User.objects.get(id=int(kwargs['user_id']))
         request.session['order_pay'] = {'user_id': user.id, 'price': kwargs['price']}
-        payment_payload = {
-            'Description': 'test',
-            'Phone': '12345678900',
-            'Amount': kwargs['price'],
-            'CallbackURL': 'http://127.0.0.1:8000/orders/purchase/verify/'
-        }
-        payment = ZarinPal(payment_payload)
-        result = payment.getResponse('payment')
-        if result['status']:
-            authority = result['authority']
-            return redirect(result['STARTPAY'].format(authority))
-        else:
-            code = result['code']
-            return HttpResponse(f"Error code: {code}")
+        go_to_gateway_view(request, kwargs['price'], user.phone)
 
 
 class VerifyPurchaseView(APIView):
@@ -100,19 +33,20 @@ class VerifyPurchaseView(APIView):
     """
 
     def get(self, request):
-        user = User.objects.get(request.session['order_pay']['user_id'])
-        price = int(request.session['order_pay']['price'])
-        authority = request.GET.get('Authority')
-        verify_payload = {
-            'Amount': price,
-            'Authority': authority
-        }
-        verify = ZarinPal(verify_payload)
-        result = verify.getResponse('verify')
-        if result['status']:
-            RefID = result['RefID']
-            user.wallet.balance += price
-            return HttpResponse(f"Transaction success.\nRefID: {RefID}")
-        else:
-            code = result['code']
-            return HttpResponse(f"Transaction failed or canceled.\ncode: {code}")
+        user = User.objects.get(id=int(request.session['order_pay']['user_id']))
+        tracking_code = request.GET.get(settings.TRACKING_CODE_QUERY_PARAM, None)
+        if not tracking_code:
+            raise Http404
+
+        try:
+            bank_record = bank_models.Bank.objects.get(tracking_code=tracking_code)
+        except bank_models.Bank.DoesNotExist:
+            raise Http404
+
+        if bank_record.is_success:
+            user.wallet.balance += int(request.session['order_pay']['price'])
+            return HttpResponse("پرداخت با موفقیت انجام شد.")
+
+        return HttpResponse(
+            "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت."
+        )

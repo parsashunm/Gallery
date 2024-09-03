@@ -35,3 +35,12 @@ class CreateAccountSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'error': e})
         except Exception as e:
             raise serializers.ValidationError({'error': e})
+
+
+class ConfirmOtpCodeSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=5)
+
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()

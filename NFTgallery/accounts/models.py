@@ -1,4 +1,6 @@
 from datetime import timedelta, datetime
+
+import pytz
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from oauth2_provider.models import AbstractApplication
@@ -14,6 +16,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    # Auction
+    participated_auction = models.PositiveIntegerField(default=0)
+    won_auctions = models.PositiveIntegerField(default=0)
 
     objects = UserManager()
 
@@ -39,9 +44,15 @@ class User(AbstractBaseUser, PermissionsMixin):
             Wallet.objects.create(owner=self)
 
 
+    @property
+    def auction_win_rate(self):
+        return (self.won_auctions / self.participated_auction) * 100
+
+
 class Wallet(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet', db_index=True)
-    balance = models.IntegerField(default='0')
+    balance = models.PositiveIntegerField(default=0)
+    blocked_balance = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'{self.owner.username}\'s wallet'
@@ -55,7 +66,7 @@ class OTP(models.Model):
     def __str__(self):
         return f'{self.code} | {self.phone} | {self.created_at}'
 
-    def expire_code(self, pytz=None):
+    def expire_code(self):
         rtime = self.created_at + timedelta(seconds=120)
         if datetime.now(tz=pytz.timezone('Asia/Tehran')) >= rtime:
             return True

@@ -72,9 +72,11 @@ cover/
 
 # Django stuff:
 *.log
+.idea
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+*/migrations/*
 
 # Flask stuff:
 instance/
