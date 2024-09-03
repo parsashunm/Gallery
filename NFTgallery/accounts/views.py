@@ -14,7 +14,7 @@ from accounts.oAuth import get_token, logout_user
 #
 
 
-class UserCreateView(CreateAPIView):
+class UserCreateView(APIView):
     """
     needs:
     \n- username/phone/password/pass2(confirm password)
@@ -26,7 +26,7 @@ class UserCreateView(CreateAPIView):
         ser_data = CreateAccountSerializer(data=request.data)
         if ser_data.is_valid():
             cd = ser_data.validated_data
-            code = random.randint(10000, 99999)
+            code = str(random.randint(10000, 99999))
             OTP.objects.create(phone=cd['phone'], code=code)
             send_otp(cd['phone'], code)
             request.session['user_registration_info'] = {
