@@ -6,7 +6,6 @@ from rest_framework.response import Response
 #
 from .serializers import (CreateAuctionProductSerializer, ProductsCreateSerializer, CreateAuctionSerializer,
                           ActionProductSerializer, )
-from NFT_SetUp.NFT_Utils import create_nft
 from .models import (Product, Auction, AuctionProduct)
 #
 

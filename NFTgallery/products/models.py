@@ -13,7 +13,7 @@ from accounts.models import User
 class Product(models.Model):
     title = models.CharField(max_length=128)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
-    images = models.ForeignKey('ProductsImage', on_delete=models.PROTECT, related_name='product')
+    images = models.ManyToManyField('ProductsImage', related_name='product', null=True, blank=True)
     price = models.PositiveIntegerField()
     slug = models.SlugField(unique=True, null=True, blank=True)
     descriptions = models.TextField()
@@ -30,7 +30,7 @@ class Product(models.Model):
 
 
 class ProductsImage(models.Model):
-    image = models.ImageField()
+    image = models.ImageField(upload_to='product/%Y/%m/%d/')
 
 
 class Auction(models.Model):
