@@ -30,3 +30,4 @@ def send_otp(num, code):
 
     res = requests.request('POST', url="https://gateway.ghasedak.me/rest/api/v1/WebService/SendOtpSMS",
                            headers=headers, data=payload)
+    print(res.status_code)
