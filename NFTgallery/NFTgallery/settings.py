@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os.path
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'channels',
     # third-party apps,
     'drf_spectacular',
-    'storages',
     'oauth2_provider',
     'azbankgateways',
     # my apps
@@ -146,6 +145,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -181,15 +184,15 @@ SPECTACULAR_SETTINGS = {
 SANDBOX = True
 MERCHANT = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
 
-# ARVAN CLOUD STORAGE
-DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
-AWS_ACCESS_KEY_ID = 'babd3bf9-93f6-4432-8822-a3f7debd7d9c'
-AWS_SECRET_ACCESS_KEY = '2139737083d501ac5e557803cb0957991215248ee0e45d5675c869931b971dad'
-AWS_S3_ENDPOINT_URL = 'https://s3.ir-thr-at1.arvanstorage.ir'
-AWS_STORAGE_BUCKET_NAME = 'parsashunm'
-AWS_SERVICE_NAME = 's3'
-AWS_S3_FILE_OVERWRITE = False
-AWS_LOCAL_STORAGE = f'{BASE_DIR}/aws/'
+# ARVAN CLOUD STORAGE / we don't use it currently
+# DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+# AWS_ACCESS_KEY_ID = 'babd3bf9-93f6-4432-8822-a3f7debd7d9c'
+# AWS_SECRET_ACCESS_KEY = '2139737083d501ac5e557803cb0957991215248ee0e45d5675c869931b971dad'
+# AWS_S3_ENDPOINT_URL = 'https://s3.ir-thr-at1.arvanstorage.ir'
+# AWS_STORAGE_BUCKET_NAME = 'parsashunm'
+# AWS_SERVICE_NAME = 's3'
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_LOCAL_STORAGE = f'{BASE_DIR}/aws/'
 
 
 # payment_portal

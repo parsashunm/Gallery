@@ -5,13 +5,20 @@ from .models import (
     User,
     OTP,
     Wallet,
+    Role,
 )
 from .forms import UserCreationForm
 
 # register accounts
 admin.site.register(OTP)
 admin.site.register(Wallet)
+admin.site.register(Role)
 #
+
+
+# class UserRolesInLine(admin.TabularInline):
+#     model = Role
+#     extra = 1
 
 
 @admin.register(User)
@@ -42,9 +49,10 @@ class UserAdmin(BaseUsrAdmin):
                  'is_active',
                  'is_admin',
                  'is_superuser',
+                 'role',
                  'groups',
                  'user_permissions',
-                 'last_login'
+                 'last_login',
              ],
          })
     ]
@@ -56,8 +64,10 @@ class UserAdmin(BaseUsrAdmin):
                  'username',
                  'phone',
                  'password',
+                 'role',
              ],
          }),
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
+    # inlines = [UserRolesInLine]

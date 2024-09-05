@@ -13,7 +13,7 @@ from accounts.models import User
 class Product(models.Model):
     title = models.CharField(max_length=128)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
-    images = models.ForeignKey('ProductsImage', on_delete=models.PROTECT, related_name='product')
+    images = models.ManyToManyField('ProductsImage', related_name='product', blank=True)
     price = models.PositiveIntegerField()
     slug = models.SlugField(unique=True, null=True, blank=True)
     descriptions = models.TextField()
@@ -30,7 +30,7 @@ class Product(models.Model):
 
 
 class ProductsImage(models.Model):
-    image = models.ImageField()
+    image = models.ImageField(upload_to='product/%Y/%m/%d/')
 
 
 class Auction(models.Model):
@@ -49,3 +49,47 @@ class AuctionProduct(models.Model):
     minimum_bid_increment = models.PositiveIntegerField()
     best_price = models.PositiveIntegerField(default=0)
     possible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+
+# class OptionGroup(models.Model):
+#     title = models.CharField(max_length=255, db_index=True)
+#
+#     def __str__(self):
+#         return self.title
+#
+#     class Meta:
+#         verbose_name = "Option Group"
+#         verbose_name_plural = "Option Groups"
+#
+#
+# class OptionGroupValue(models.Model):
+#     title = models.CharField(max_length=255, db_index=True)
+#     group = models.ForeignKey(OptionGroup, on_delete=models.CASCADE)
+#
+#     def __str__(self):
+#         return self.title
+#
+#     class Meta:
+#         verbose_name = "Option Group Value"
+#         verbose_name_plural = "Option Group Values"
+#
+#
+# class Option(models.Model):
+#     class OptionTypeChoice(models.TextChoices):
+#         text = 'text'
+#         integer = 'integer'
+#         float = 'float'
+#         option = 'option'
+#         multi_option = 'multi_option'
+#
+#     title = models.CharField(max_length=64)
+#     type = models.CharField(max_length=16, choices=OptionTypeChoice.choices, default=OptionTypeChoice.text)
+#     option_group = models.ForeignKey(OptionGroup, on_delete=models.PROTECT, null=True, blank=True)
+#     required = models.BooleanField(default=False)
+#
+#     def __str__(self):
+#         return self.title
+#
+#     class Meta:
+#         verbose_name = "Option"
+#         verbose_name_plural = "Options"
