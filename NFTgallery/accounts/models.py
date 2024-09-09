@@ -6,24 +6,23 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from oauth2_provider.models import AbstractApplication
 #
 from .managers import UserManager
+#
 
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-    # class OptionTypeChoice(models.TextChoices):
-    #     buyer = 'buyer'
-    #     artist = 'artist'
-    #     presenter = 'presenter'
-
+    # base info
     username = models.CharField(max_length=128)
     phone = models.CharField(max_length=11, unique=True, db_index=True)
     about = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+
     # Auction
     participated_auction = models.PositiveIntegerField(default=0)
     won_auctions = models.PositiveIntegerField(default=0)
+
     # roles
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
 

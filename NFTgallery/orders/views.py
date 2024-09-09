@@ -9,6 +9,7 @@ from azbankgateways import (
 )
 #
 from accounts.models import User
+from orders.models import Treasury
 from orders.payment_portal import go_to_gateway_view
 #
 
@@ -44,7 +45,9 @@ class VerifyPurchaseView(APIView):
             raise Http404
 
         if bank_record.is_success:
-            user.wallet.balance += int(request.session['order_pay']['price'])
+            balance = int(request.session['order_pay']['price'])
+            user.wallet.balance += balance
+            Treasury.objects.first().users_balance += balance
             return HttpResponse("پرداخت با موفقیت انجام شد.")
 
         return HttpResponse(
