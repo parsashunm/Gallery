@@ -1,7 +1,10 @@
 from django.contrib import admin
+from treebeard.admin import TreeAdmin
+from treebeard.forms import movenodeform_factory
+
 #
 from .models import (
-    Product, ProductsImage, Auction, AuctionProduct,
+    Product, ProductsImage, Auction, AuctionProduct, Category
 )
 #
 admin.site.register(Auction)
@@ -31,3 +34,10 @@ class AuctionProductsAdmin(admin.ModelAdmin):
             ]
         })
     ]
+
+
+class CategoryAdmin(TreeAdmin):
+    form = movenodeform_factory(Category)
+
+
+admin.site.register(Category, CategoryAdmin)

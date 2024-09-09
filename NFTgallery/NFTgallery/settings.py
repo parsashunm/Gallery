@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'channels',
+    'treebeard',
     # third-party apps,
     'drf_spectacular',
     'oauth2_provider',
