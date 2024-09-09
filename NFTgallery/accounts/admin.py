@@ -12,7 +12,6 @@ from .forms import UserCreationForm
 # register accounts
 admin.site.register(OTP)
 admin.site.register(Wallet)
-admin.site.register(Role)
 #
 
 
@@ -70,4 +69,3 @@ class UserAdmin(BaseUsrAdmin):
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
-    # inlines = [UserRolesInLine]
