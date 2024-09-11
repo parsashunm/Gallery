@@ -10,7 +10,8 @@ from .managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-  
+
+    # base info
     username = models.CharField(max_length=128)
     phone = models.CharField(max_length=11, unique=True, db_index=True)
     about = models.TextField(null=True, blank=True)
@@ -21,6 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Auction
     participated_auction = models.PositiveIntegerField(default=0)
     won_auctions = models.PositiveIntegerField(default=0)
+
     # roles
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -75,3 +77,11 @@ class OTP(models.Model):
         if datetime.now(tz=pytz.timezone('Asia/Tehran')) >= rtime:
             return True
         return False
+
+
+class Role(models.Model):
+
+    title = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.title

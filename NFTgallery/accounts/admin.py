@@ -70,4 +70,3 @@ class UserAdmin(BaseUsrAdmin):
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
-    # inlines = [UserRolesInLine]
