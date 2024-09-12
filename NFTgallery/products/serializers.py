@@ -1,17 +1,85 @@
 from rest_framework import serializers
 #
-from .models import (Product, ProductsImage, Auction, AuctionProduct)
+from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductClass, Option, OptionGroup,
+                     ProductAttribute)
 #
 
 
 class ProductsImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductsImage
-        exclude = ('id',)
+        fields = ['image']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+        extra_kwargs = {
+            'path': {'write_only': True},
+            'depth': {'write_only': True},
+            'numchild': {'write_only': True},
+            'description': {'write_only': True},
+            'is_public': {'write_only': True},
+        }
+
+
+class OptionGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OptionGroup
+        fields = '__all__'
+
+
+class OptionSerializer(serializers.ModelSerializer):
+
+    option_group = OptionGroupSerializer()
+
+    class Meta:
+        model = Option
+        exclude = ['required']
+
+
+class ProductClassSerializer(serializers.ModelSerializer):
+
+    options = OptionSerializer(many=True)
+
+    class Meta:
+        model = ProductClass
+        fields = '__all__'
+
+        extra_kwargs = {
+            'options': {'write_only': True},
+            'title': {'write_only': True},
+            'slug': {'write_only': True},
+            'description': {'write_only': True},
+        }
+
+
+class ProductAttributesSerializer(serializers.ModelSerializer):
+
+    product_class = ProductClassSerializer()
+    option_group = OptionGroupSerializer()
+
+    class Meta:
+        model = ProductAttribute
+        fields = '__all__'
+
+        extra_kwargs = {
+            'product_class': {'write_only': True},
+            'type': {'write_only': True},
+            'required': {'write_only': True},
+        }
 
 
 class ProductsSerializer(serializers.ModelSerializer):
-    images = ProductsImageSerializer()
+    images = ProductsImageSerializer(many=True)
+
+    category = CategorySerializer()
+    product_class = ProductClassSerializer()
+    attributes = ProductAttributesSerializer(many=True)
 
     class Meta:
         model = Product
