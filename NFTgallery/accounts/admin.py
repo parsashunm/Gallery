@@ -2,23 +2,20 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUsrAdmin
 # 
 from .models import (
-    User,
-    OTP,
-    Wallet,
-    Role,
+    User, OTP, Wallet, Role,
 )
 from .forms import UserCreationForm
 
 # register accounts
 admin.site.register(OTP)
-admin.site.register(Wallet)
 admin.site.register(Role)
 #
 
 
-# class UserRolesInLine(admin.TabularInline):
-#     model = Role
-#     extra = 1
+@admin.register(Wallet)
+class WalletAdmin(admin.ModelAdmin):
+    list_display = ['id', 'owner', 'balance']
+    search_fields = ['owner__phone']
 
 
 @admin.register(User)
