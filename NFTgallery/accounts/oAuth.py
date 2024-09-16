@@ -1,8 +1,8 @@
 import requests
 
 # client info
-client_id = 'SyhcphrV9q0L8vej5pOsM8xAZfbbDU2v6l2b7oUT'
-client_secret = 'rMIderfSm7sxdNmJLCBTxsLZ0DpKPu4RcstYHtkhAf3hXKvxgFHVqQRO4irFz8t7KbbJ2z6iUspUjw8JimtpQgRO6gOdFYbyC2x8yINdrDQYxLkCqzWhgDFRc0mYeo1f'
+client_id = 'pW9yn0KK66EKFKTdKx93kKlFWLIANn98laV7x2yk'
+client_secret = 'KO7pesMPV4884gG14Wr69aP97u01PcSyyAaQrwD506hE7MrpoeoZBBgwi7Ai5r5PsG6ij87S2xyhuY7xox34z0AoNHpGau3330UH35NgTotP6GjfeLMjUbq6fOWmFWe9'
 
 # sv address
 token_url = 'http://127.0.0.1:8000/ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/token/'
