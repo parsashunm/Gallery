@@ -1,7 +1,7 @@
 from rest_framework import serializers
 #
 from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductClass, Option, OptionGroup,
-                     ProductAttribute)
+                     ProductAttribute, ProductAttributeValue, OptionGroupValue)
 #
 
 
@@ -31,6 +31,13 @@ class OptionGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = OptionGroup
         fields = '__all__'
+
+
+class OptionGroupValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OptionGroupValue
+        fields = ['id', 'title']
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -74,12 +81,39 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
         }
 
 
+class BetaProductAttributesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductAttribute
+        fields = '__all__'
+
+
+class ProductAttributeValueSerializer(serializers.ModelSerializer):
+    attribute = ProductAttributesSerializer()
+
+    class Meta:
+        model = ProductAttributeValue
+        exclude = ['id']
+
+    value_multi_option = OptionGroupValueSerializer(many=True, required=False)
+
+
+class BetaProductAttributeValueSerializer(serializers.ModelSerializer):
+    # attribute = BetaProductAttributesSerializer()
+
+    class Meta:
+        model = ProductAttributeValue
+        exclude = ['id']
+
+    value_multi_option = OptionGroupValueSerializer(many=True, required=False)
+
+
 class ProductsSerializer(serializers.ModelSerializer):
     images = ProductsImageSerializer(many=True)
 
     category = CategorySerializer()
     product_class = ProductClassSerializer()
-    attributes = ProductAttributesSerializer(many=True)
+    attributes = ProductAttributeValueSerializer(many=True, source='ProductAttributeValue_set')
 
     class Meta:
         model = Product
@@ -87,6 +121,8 @@ class ProductsSerializer(serializers.ModelSerializer):
 
 
 class ProductsCreateSerializer(serializers.ModelSerializer):
+
+    attributes = BetaProductAttributeValueSerializer(many=True, source='ProductAttributeValue_set', read_only=True)
 
     class Meta:
         model = Product

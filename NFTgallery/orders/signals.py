@@ -8,7 +8,9 @@ from .models import (
 #
 
 
-@receiver(post_save, sender=Treasury)
+@receiver(pre_save, sender=Treasury)
 def block_multi_treasury(sender, **kwargs):
-    if kwargs['created']:
-        raise ValidationError('na')
+    treasuries = Treasury.objects.all()
+    if treasuries.exists():
+        if not treasuries.first().id == kwargs['instance'].id:
+            raise ValidationError('we already have one dude')

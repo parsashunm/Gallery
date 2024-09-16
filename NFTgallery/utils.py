@@ -3,6 +3,8 @@ import json
 import uuid
 import requests
 
+from orders.models import Treasury
+
 
 def send_otp(num, code):
     cri = str(uuid.uuid4())
@@ -31,3 +33,11 @@ def send_otp(num, code):
     res = requests.request('POST', url="https://gateway.ghasedak.me/rest/api/v1/WebService/SendOtpSMS",
                            headers=headers, data=payload)
     print(res.status_code)
+
+
+def calculate_product_profit(price, percent):
+    profit = (price / 100) * percent
+    treasury = Treasury.objects.first()
+    treasury.profit += profit
+    treasury.save()
+    return (price - profit)

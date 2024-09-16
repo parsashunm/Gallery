@@ -150,8 +150,8 @@ class ProductAttribute(models.Model):
 
 
 class ProductAttributeValue(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    attribute = models.ForeignKey(ProductAttribute, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='ProductAttributeValue_set')
+    attribute = models.ForeignKey(ProductAttribute, on_delete=models.CASCADE, related_name='goh')
 
     value_text = models.TextField(null=True, blank=True)
     value_integer = models.IntegerField(null=True, blank=True)

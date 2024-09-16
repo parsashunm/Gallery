@@ -9,11 +9,15 @@ from .models import (
 )
 #
 admin.site.register(Auction)
-admin.site.register(ProductAttribute)
 admin.site.register(OptionGroup)
 admin.site.register(OptionGroupValue)
 admin.site.register(Option)
 #
+
+
+@admin.register(ProductAttribute)
+class ProductAttributeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title']
 
 
 class ProductAttributeValueInline(admin.TabularInline):
@@ -34,7 +38,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductClass)
 class ProductClassAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'attribute_count')
+    list_display = ('id', 'title', 'slug', 'attribute_count')
     inlines = [ProductAttributeInline]
     prepopulated_fields = {"slug": ("title",)}
 

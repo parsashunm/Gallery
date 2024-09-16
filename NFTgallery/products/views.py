@@ -3,9 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
+
+from orders.models import Treasury
+from utils import calculate_product_profit
 #
 from .serializers import (CreateAuctionProductSerializer, ProductsCreateSerializer, CreateAuctionSerializer,
-                          ActionProductSerializer, )
+                          ActionProductSerializer, ProductsSerializer, )
 from .models import (Product, Auction, AuctionProduct)
 #
 
@@ -15,10 +18,44 @@ class CreateProductView(CreateAPIView):
     """
     creat a Product
     \nsend image id for image field
+    \nowner will be a user id
+    \ncategory have not be a parent like painting but miniature or classic is ok for e.g
+    \n.
+    \n.
+    \n.
+    \nabout attributes field:
+    \nall fields what are in are optional except attribute
+    \nattribute value is an object of Product Attributes
+    \nbut you have to send one of them / for e.g:
+    \n you set color attribute / now you must set one or many value for it such as green, white, red ...
     """
 
     serializer_class = ProductsCreateSerializer
     queryset = Product.objects.all()
+
+
+class BuyProductView(APIView):
+    """
+        we just need product id in url
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        product = Product.objects.get(pk=kwargs['product_id'])
+        user = request.user
+        treasury = Treasury.objects.first()
+        if user.wallet.balance >= product.price:
+            print(user.wallet.balance)
+            print(product.price)
+            user.wallet.balance -= product.price
+            user.wallet.save()
+            product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+            product.owner.wallet.save()
+            product.owner = user
+            product.save()
+            return Response('you bought the product successfully')
+        return Response("your balance isn't enough")
 
 
 class CreateAuctionView(CreateAPIView):
