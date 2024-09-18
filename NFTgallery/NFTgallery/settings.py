@@ -177,13 +177,9 @@ OAUTH2_PROVIDER = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Gallery API',
     'DESCRIPTION': 'for any question <a href="https://t.me/parsashunm">text me</a>',
-    'VERSION': '1.1.0',
+    'VERSION': '0.1.1',
     'SERVE_INCLUDE_SCHEMA': False,
 }
-
-# zarinpal
-SANDBOX = True
-MERCHANT = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'
 
 # ARVAN CLOUD STORAGE / we don't use it currently
 # DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"

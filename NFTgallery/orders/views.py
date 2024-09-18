@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from azbankgateways import (
-    bankfactories,
     models as bank_models,
     default_settings as settings,
 )
@@ -11,10 +12,12 @@ from azbankgateways import (
 from accounts.models import User
 from orders.models import Treasury
 from orders.payment_portal import go_to_gateway_view
+from products.models import Product
+from utils import calculate_product_profit
 #
 
 
-class BuyProductView(APIView):
+class ChargeWalletView(APIView):
 
     """
     this end-point will use for purchase the arts
@@ -53,3 +56,26 @@ class VerifyPurchaseView(APIView):
         return HttpResponse(
             "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت."
         )
+
+
+class BuyProductView(APIView):
+    """
+        we just need product id in url
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        product = Product.objects.get(pk=kwargs['product_id'])
+        user = request.user
+        if user.wallet.balance >= product.price:
+            print(user.wallet.balance)
+            print(product.price)
+            user.wallet.balance -= product.price
+            user.wallet.save()
+            product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+            product.owner.wallet.save()
+            product.owner = user
+            product.save()
+            return Response('you bought the product successfully')
+        return Response("your balance isn't enough")
