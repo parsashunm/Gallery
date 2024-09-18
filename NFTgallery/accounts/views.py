@@ -40,6 +40,10 @@ class UserCreateView(APIView):
 
 class ConfirmOtpView(APIView):
 
+    """
+    you should send the code that we sent to user phone number
+    """
+
     serializer_class = ConfirmOtpCodeSerializer
 
     def post(self, request):
