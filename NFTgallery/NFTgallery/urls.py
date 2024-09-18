@@ -22,10 +22,11 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from azbankgateways.urls import az_bank_gateways_urls
 #
 from orders.views import BuyProductView
+#
 
 urlpatterns = [
     # admin
-    path('admin/', admin.site.urls),
+    path('api/admin/', admin.site.urls),
 
     # my apps
     path('api/', include('home.urls', namespace='home')),
@@ -34,12 +35,12 @@ urlpatterns = [
     path('api/orders/', include('orders.urls', namespace='orders')),
 
     # def-spectacular
-    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # oAuth2
-    path('ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('api/ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
     # bank-gateways
     path('bank/', az_bank_gateways_urls()),

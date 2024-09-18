@@ -53,7 +53,7 @@ class ProductClass(models.Model):
 
 
 class ProductsImage(models.Model):
-    image = models.ImageField(upload_to='product/%Y/%m/%d/')
+    image = models.ImageField(upload_to='products/images/%Y/%m/%d/')
 
 
 class Auction(models.Model):
