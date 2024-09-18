@@ -24,18 +24,23 @@ from azbankgateways.urls import az_bank_gateways_urls
 from orders.views import BuyProductView
 
 urlpatterns = [
+    # admin
     path('admin/', admin.site.urls),
+
     # my apps
-    path('', include('home.urls', namespace='home')),
-    path('products/', include('products.urls', namespace='products')),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('orders/', include('orders.urls', namespace='orders')),
+    path('api/', include('home.urls', namespace='home')),
+    path('api/products/', include('products.urls', namespace='products')),
+    path('api/accounts/', include('accounts.urls', namespace='accounts')),
+    path('api/orders/', include('orders.urls', namespace='orders')),
+
     # def-spectacular
     path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
     # oAuth2
     path('ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+
     # bank-gateways
     path('bank/', az_bank_gateways_urls()),
     path('go-to-getway/<int:user_id>/<int:price>/', BuyProductView.as_view())

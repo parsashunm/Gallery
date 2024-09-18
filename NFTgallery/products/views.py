@@ -34,30 +34,6 @@ class CreateProductView(CreateAPIView):
     queryset = Product.objects.all()
 
 
-class BuyProductView(APIView):
-    """
-        we just need product id in url
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        product = Product.objects.get(pk=kwargs['product_id'])
-        user = request.user
-        treasury = Treasury.objects.first()
-        if user.wallet.balance >= product.price:
-            print(user.wallet.balance)
-            print(product.price)
-            user.wallet.balance -= product.price
-            user.wallet.save()
-            product.owner.wallet.balance += calculate_product_profit(product.price, 10)
-            product.owner.wallet.save()
-            product.owner = user
-            product.save()
-            return Response('you bought the product successfully')
-        return Response("your balance isn't enough")
-
-
 class CreateAuctionView(CreateAPIView):
 
     """
