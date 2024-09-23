@@ -64,6 +64,7 @@ class BuyProductView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = None
 
     def get(self, request, *args, **kwargs):
         product = Product.objects.get(pk=kwargs['product_id'])
