@@ -34,11 +34,15 @@ class UserCreateView(APIView):
                 'phone': cd['phone'],
                 'password': cd['password']
             }
-            return redirect('accounts:confirm_code')
+            return Response('OTP sent')
         return Response(ser_data.errors)
 
 
 class ConfirmOtpView(APIView):
+
+    """
+    you should send the code that we sent to user phone number
+    """
 
     serializer_class = ConfirmOtpCodeSerializer
 
@@ -86,6 +90,8 @@ class UserLogOutView(APIView):
     we'll get token from "Authorization" field in headers
     \n no need to send anything
     """
+
+    serializer_class = None
 
     def post(self, request):
         token = request.headers.get('Authorization')
