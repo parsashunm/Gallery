@@ -2,8 +2,11 @@ import datetime
 import json
 import uuid
 import requests
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+#
 from orders.models import Treasury
+#
 
 
 def send_otp(num, code):
@@ -41,3 +44,9 @@ def calculate_product_profit(price, percent):
     treasury.profit += profit
     treasury.save()
     return (price - profit)
+
+
+def update_auction_product_presenting(auction_product):
+    ch = get_channel_layer()
+    async_to_sync(ch.group_send)
+    async_to_sync(ch.group_send)('product_detail', {'type': 'update', 'product': auction_product})

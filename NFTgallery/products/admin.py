@@ -4,46 +4,38 @@ from treebeard.forms import movenodeform_factory
 
 #
 from .models import (
-    Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue, ProductClass, ProductAttribute,
-    OptionGroup, OptionGroupValue, Option
+    Product, ProductsImage, Auction, AuctionProduct, Category, Attribute, AttributeValue, ProductAttributeValue
 )
 #
 admin.site.register(Auction)
-admin.site.register(OptionGroup)
-admin.site.register(OptionGroupValue)
-admin.site.register(Option)
 #
 
 
-@admin.register(ProductAttribute)
-class ProductAttributeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title']
+@admin.register(AttributeValue)
+class AttributeValueAdmin(admin.ModelAdmin):
+    list_display = ['value', 'id']
 
 
-class ProductAttributeValueInline(admin.TabularInline):
+class AttributeValueInLine(admin.TabularInline):
+    model = AttributeValue
+    extra = 0
+
+
+class ProductAttributeValueInLine(admin.TabularInline):
     model = ProductAttributeValue
     extra = 0
 
 
-class ProductAttributeInline(admin.StackedInline):
-    model = ProductAttribute
-    extra = 0
+@admin.register(Attribute)
+class AttributeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    inlines = [AttributeValueInLine]
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'owner', 'price']
-    inlines = [ProductAttributeValueInline]
-
-
-@admin.register(ProductClass)
-class ProductClassAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'slug', 'attribute_count')
-    inlines = [ProductAttributeInline]
-    prepopulated_fields = {"slug": ("title",)}
-
-    def attribute_count(self, obj):
-        return obj.attributes.count()
+    inlines = [ProductAttributeValueInLine]
 
 
 @admin.register(ProductsImage)
@@ -68,6 +60,7 @@ class AuctionProductsAdmin(admin.ModelAdmin):
 
 class CategoryAdmin(TreeAdmin):
     form = movenodeform_factory(Category)
+    list_display = ['title', 'id']
 
 
 admin.site.register(Category, CategoryAdmin)
