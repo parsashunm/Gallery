@@ -77,3 +77,11 @@ class OTP(models.Model):
         if datetime.now(tz=pytz.timezone('Asia/Tehran')) >= rtime:
             return True
         return False
+
+
+class Role(models.Model):
+
+    title = models.CharField(max_length=64, unique=True)
+
+    def __str__(self):
+        return self.title

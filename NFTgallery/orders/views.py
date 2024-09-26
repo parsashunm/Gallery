@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from azbankgateways import (
-    bankfactories,
     models as bank_models,
     default_settings as settings,
 )
@@ -11,10 +12,14 @@ from azbankgateways import (
 from accounts.models import User
 from orders.models import Treasury
 from orders.payment_portal import go_to_gateway_view
+from products.models import Product, AuctionProduct, ProductsImage
+from utils import calculate_product_profit, update_presenting_detail
+
+
 #
 
 
-class BuyProductView(APIView):
+class ChargeWalletView(APIView):
 
     """
     this end-point will use for purchase the arts
@@ -53,3 +58,67 @@ class VerifyPurchaseView(APIView):
         return HttpResponse(
             "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت."
         )
+
+
+class BuyProductView(APIView):
+    """
+        we just need product id in url
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = None
+
+    def get(self, request, *args, **kwargs):
+        product = Product.objects.get(pk=kwargs['product_id'])
+        user = request.user
+        if user.wallet.balance >= product.price:
+            print(user.wallet.balance)
+            print(product.price)
+            user.wallet.balance -= product.price
+            user.wallet.save()
+            product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+            product.owner.wallet.save()
+            product.owner = user
+            product.save()
+            return Response('you bought the product successfully')
+        return Response("your balance isn't enough")
+
+
+class OfferRegisterView(APIView):
+
+    """
+        needs just id as auction product id and offer in request body
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        auction_product = AuctionProduct.objects.get(id=request.data['id'])
+        offer = int(request.data['offer'])
+        best_price = max(auction_product.best_price, auction_product.base_price)
+        if auction_product.is_presenting:
+            if (request.user.wallet.balance * 2) >= offer:
+                if offer >= (best_price + auction_product.minimum_bid_increment):
+                    possible_user = request.user
+
+                    try:
+                        last_offer_user = auction_product.possible_user
+                        past_best_price = auction_product.best_price
+                        last_offer_user.wallet.blocked_balance -= past_best_price
+                        last_offer_user.wallet.balance += past_best_price
+                        last_offer_user.wallet.save()
+                    except:
+                        pass
+
+                    possible_user.wallet.balance -= offer
+                    possible_user.wallet.blocked_balance += offer
+                    possible_user.wallet.save()
+                    auction_product.best_price = offer
+                    auction_product.possible_user = possible_user
+                    auction_product.save()
+                    update_presenting_detail(auction_product)
+
+                    return Response('done')
+                return Response("please offer higher price")
+            return Response("you dont have that many")
+        return Response("this product isn't presenting")

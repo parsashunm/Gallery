@@ -34,11 +34,15 @@ class UserCreateView(APIView):
                 'phone': cd['phone'],
                 'password': cd['password']
             }
-            return redirect('accounts:confirm_code')
+            return Response('OTP sent')
         return Response(ser_data.errors)
 
 
 class ConfirmOtpView(APIView):
+
+    """
+    you should send the code that we sent to user phone number
+    """
 
     serializer_class = ConfirmOtpCodeSerializer
 
@@ -75,7 +79,7 @@ class UserLoginView(APIView):
             vd = srz_data.validated_data
             user = authenticate(phone=vd['username'], password=vd['password'])
             if user:
-                res = get_token(request.data['username'], request.data['password'])
+                res = get_token(request, request.data['username'], request.data['password'])
                 return Response(res)
         return Response('username or password is incorrect')
 
@@ -87,6 +91,9 @@ class UserLogOutView(APIView):
     \n no need to send anything
     """
 
+    serializer_class = None
+
     def post(self, request):
-        token = request.headers.get('Authorization')
-        return Response(logout_user(token))
+        token = request.headers.get('Authorization').split()[1]
+        print(token)
+        return Response(logout_user(request, token))

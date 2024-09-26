@@ -1,14 +1,17 @@
 import requests
+from django.shortcuts import redirect
+from rest_framework.reverse import reverse_lazy
 
 # client info
-client_id = 'SyhcphrV9q0L8vej5pOsM8xAZfbbDU2v6l2b7oUT'
-client_secret = 'rMIderfSm7sxdNmJLCBTxsLZ0DpKPu4RcstYHtkhAf3hXKvxgFHVqQRO4irFz8t7KbbJ2z6iUspUjw8JimtpQgRO6gOdFYbyC2x8yINdrDQYxLkCqzWhgDFRc0mYeo1f'
+client_id = 'QO12SCTCVYwMhzLDjAhb6d1jsXRsgQyQr13Rkhr3'
+client_secret = '1ftLrUNmBIKaX5nwt2KLUsdMJdkvhp5gg7TpCAorNvlMdDpXRBt8qBDC6utTbN6mlR2DPvCzaLKto2BjHjdMSyEgJUumvCxEeARXqBaYd3D9Nf7LisBq4Z8udbHroMIU'
 
 # sv address
-token_url = 'http://127.0.0.1:8000/ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/token/'
+token_url = reverse_lazy('create_token')
+revoke_url = reverse_lazy('revoke_token')
 
 
-def get_token(username, password):
+def get_token(request, username, password):
 
     data = {
         'grant_type': 'password',
@@ -18,7 +21,7 @@ def get_token(username, password):
         'client_secret': client_secret
     }
 
-    response = requests.post(token_url, data=data)
+    response = requests.post(request.build_absolute_uri(token_url), data=data)
 
     if response.status_code == 200:
         token = response.json()
@@ -28,8 +31,7 @@ def get_token(username, password):
         return response.json()
 
 
-def logout_user(token):
-    revoke_url = 'http://localhost:8000/o/revoke_token/'
+def logout_user(request, token):
 
     data = {
         'token': token,
@@ -37,7 +39,7 @@ def logout_user(token):
         'client_secret': client_secret,
     }
 
-    response = requests.post(revoke_url, data=data)
+    response = requests.post(request.build_absolute_uri(revoke_url), data=data)
 
     if response.status_code == 200:
         return 'User logged out successfully.'
