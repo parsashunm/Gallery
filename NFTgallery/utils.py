@@ -43,10 +43,16 @@ def calculate_product_profit(price, percent):
     treasury = Treasury.objects.first()
     treasury.profit += profit
     treasury.save()
-    return (price - profit)
+    return price - profit
 
 
-def update_auction_product_presenting(auction_product):
+def update_presenting_detail(auction_product, *args, **kwargs):
+    images = auction_product.product.images.all()
+    # for image in images:
+    #     print(image.image.url)
     ch = get_channel_layer()
     async_to_sync(ch.group_send)
-    async_to_sync(ch.group_send)('product_detail', {'type': 'update', 'product': auction_product})
+    async_to_sync(ch.group_send)('product_detail', {'type': 'update',
+                                                    'product': auction_product.product,
+                                                    'auction_product': auction_product,
+                                                    'images': images})

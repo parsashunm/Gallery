@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from azbankgateways.urls import az_bank_gateways_urls
+from oauth2_provider.views import TokenView, RevokeTokenView
 #
 from orders.views import BuyProductView
 #
@@ -40,7 +41,8 @@ urlpatterns = [
     path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # oAuth2
-    path('api/ogtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('api/createtoken/', TokenView.as_view(), name='create_token'),
+    path('api/revoketoken/', RevokeTokenView.as_view(), name='revoke_token'),
 
     # bank-gateways
     path('bank/', az_bank_gateways_urls()),
