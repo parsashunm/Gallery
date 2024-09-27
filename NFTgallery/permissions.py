@@ -17,5 +17,6 @@ class IsPresenter(BasePermission):
 
 class IsArtist(BasePermission):
     def has_permission(self, request, view):
-        user = User.objects.get(pk=int(view.kwargs.get('user_id')))
+        # user = User.objects.get(pk=int(view.kwargs.get('user_id')))
+        user = request.user
         return user.role.title == 'artist' or user.is_admin and user

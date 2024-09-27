@@ -7,7 +7,7 @@ app_name = 'orders'
 
 urlpatterns = [
     path('product/buy/<int:product_id>/', BuyProductView.as_view(), name='buy_product'),
-    path('auction/product/offer/', OfferRegisterView.as_view(), name='new_offer'),
+    # path('auction/product/offer/', OfferRegisterView.as_view(), name='new_offer'),
     # path('purchase/<int:user_id>/<int:price>/', ChargeWalletView.as_view(), name='purchase_product'),
     # path('purchase/verify/', VerifyPurchaseView.as_view(), name='verify_purchase'),
     # az_bank_gateways
