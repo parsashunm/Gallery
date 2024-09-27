@@ -75,7 +75,7 @@ class AuctionProductDetailView(APIView):
 
 
 class SetProductForPresentView(APIView):
-
+  
     permission_classes = [IsPresenter]
 
     def post(self, request):
