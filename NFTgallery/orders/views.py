@@ -12,8 +12,10 @@ from azbankgateways import (
 from accounts.models import User
 from orders.models import Treasury
 from orders.payment_portal import go_to_gateway_view
-from products.models import Product
-from utils import calculate_product_profit
+from products.models import Product, AuctionProduct, ProductsImage
+from utils import calculate_product_profit, update_presenting_detail
+
+
 #
 
 
@@ -80,3 +82,43 @@ class BuyProductView(APIView):
             product.save()
             return Response('you bought the product successfully')
         return Response("your balance isn't enough")
+
+
+class OfferRegisterView(APIView):
+
+    """
+        needs just id as auction product id and offer in request body
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        auction_product = AuctionProduct.objects.get(id=request.data['id'])
+        offer = int(request.data['offer'])
+        best_price = max(auction_product.best_price, auction_product.base_price)
+        if auction_product.is_presenting:
+            if (request.user.wallet.balance * 2) >= offer:
+                if offer >= (best_price + auction_product.minimum_bid_increment):
+                    possible_user = request.user
+
+                    try:
+                        last_offer_user = auction_product.possible_user
+                        past_best_price = auction_product.best_price
+                        last_offer_user.wallet.blocked_balance -= past_best_price
+                        last_offer_user.wallet.balance += past_best_price
+                        last_offer_user.wallet.save()
+                    except:
+                        pass
+
+                    possible_user.wallet.balance -= offer
+                    possible_user.wallet.blocked_balance += offer
+                    possible_user.wallet.save()
+                    auction_product.best_price = offer
+                    auction_product.possible_user = possible_user
+                    auction_product.save()
+                    update_presenting_detail(auction_product)
+
+                    return Response('done')
+                return Response("please offer higher price")
+            return Response("you dont have that many")
+        return Response("this product isn't presenting")

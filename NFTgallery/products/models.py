@@ -8,34 +8,26 @@ from accounts.models import User
 #
 
 
+class ProductsImage(models.Model):
+    image = models.ImageField(upload_to='products/images/%Y/%m/%d/')
+
+
 class Product(models.Model):
     title = models.CharField(max_length=128)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
-    images = models.ManyToManyField('ProductsImage', related_name='product', blank=True)
+    images = models.ManyToManyField(ProductsImage, related_name='product', blank=True, null=True)
     price = models.PositiveIntegerField()
     descriptions = models.TextField()
 
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
 
-    is_buyable = models.BooleanField(default=False)
+    is_buyable = models.BooleanField(default=True)
     is_sold = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # uncomment when deployment
-    def save(self, *args, **kwargs):
-        image_count = self.images.count()
-        print(image_count)
-        if image_count < 3 or image_count > 5:
-            raise ValidationError('pictures should be between 3 and 5')
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.title
-
-
-class ProductsImage(models.Model):
-    image = models.ImageField(upload_to='products/images/%Y/%m/%d/')
 
 
 class Auction(models.Model):
@@ -50,11 +42,18 @@ class Auction(models.Model):
 class AuctionProduct(models.Model):
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='auction')
+    descriptions = models.TextField(null=True, blank=True)
+
     base_price = models.PositiveIntegerField()
     minimum_bid_increment = models.PositiveIntegerField()
     best_price = models.PositiveIntegerField(default=0)
+
     possible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
     is_presenting = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.auction.title} - {self.product.title}"
 
 
 class Category(MP_Node):
@@ -64,6 +63,7 @@ class Category(MP_Node):
 
     def __str__(self):
         return self.title
+
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"

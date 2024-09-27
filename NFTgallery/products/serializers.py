@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 #
 from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue)
@@ -60,6 +61,10 @@ class ProductsCreateSerializer(serializers.ModelSerializer):
 
         attributes_data = validated_data.pop('attributes')
         images = validated_data.pop('images')
+
+        image_count = len(images)
+        if image_count < 3 or image_count > 5:
+            raise ValidationError('pictures should be between 3 and 5')
 
         product = Product.objects.create(**validated_data)
         product.images.set(images)
