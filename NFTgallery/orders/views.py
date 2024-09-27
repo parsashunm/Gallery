@@ -14,6 +14,8 @@ from orders.models import Treasury
 from orders.payment_portal import go_to_gateway_view
 from products.models import Product, AuctionProduct, ProductsImage
 from utils import calculate_product_profit, update_presenting_detail
+
+
 #
 
 
