@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-
-from orders.models import Treasury
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 from permissions import IsSpecificUser, IsPresenter, IsArtist
 from utils import calculate_product_profit, update_presenting_detail
 #
@@ -59,7 +59,7 @@ class CreateAuctionProductView(APIView):
         ser_data = self.serializer_class(data=request.data)
         if ser_data.is_valid():
             ser_data.create(ser_data.validated_data)
-            return Response(ser_data.data)
+            return Response(ser_data.data, status=status.HTTP_201_CREATED)
         return Response(ser_data.errors)
 
 
@@ -76,19 +76,39 @@ class AuctionProductDetailView(APIView):
 
 class SetProductForPresentView(APIView):
 
+    """
+    needs auction product id in url
+    """
+
     permission_classes = [IsPresenter]
 
-    def post(self, request):
-        auction_product = AuctionProduct.objects.get(pk=request.data['id'])
+    def get(self, request, ap_id):
+        if AuctionProduct.objects.filter(is_presenting=True).exists():
+            return Response('close all the products that are presenting first', status=status.HTTP_400_BAD_REQUEST)
+        auction_product = AuctionProduct.objects.get(id=ap_id)
         auction_product.is_presenting = True
-        update_presenting_detail(AuctionProduct)
+        auction_product.save()
+        update_presenting_detail(auction_product)
         return Response('done')
 
 
-# class ClosePresentAuctionProduct(APIView):
-#
-#     permission_classes = [IsPresenter]
-#
-#     def post(self, request):
-#         auction_product = AuctionProduct.objects.get(pk=request.data['id'])
-#         auction_product.is_presenting = False
+class CloseAuctionProduct(APIView):
+
+    permission_classes = [IsPresenter]
+    queryset = AuctionProduct.objects.all()
+
+    def post(self, request):
+        auction_product = get_object_or_404(AuctionProduct, is_presenting=True)
+        if auction_product.possible_user:
+            if auction_product.possible_user.wallet.debt == 0:
+                auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price
+                auction_product.product.owner = auction_product.possible_user
+                auction_product.status = auction_product.StatusOption.sold
+                auction_product.save()
+                auction_product.product.save()
+                auction_product.possible_user.wallet.save()
+                update_presenting_detail(auction_product=auction_product, empty=True)
+                return Response('done', status=status.HTTP_200_OK)
+            auction_product.status = auction_product.StatusOption.unknown
+            return Response('mojudi shoma kafi nemibashad lotfa hesab khod ra ta sa`at 00:00 sharj konid')
+        return Response('kharidari baraye in mahsol peyda nashod')

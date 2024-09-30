@@ -59,6 +59,7 @@ class Wallet(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet', db_index=True)
     balance = models.PositiveIntegerField(default=0)
     blocked_balance = models.PositiveIntegerField(default=0)
+    debt = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'{self.owner.username}\'s wallet'

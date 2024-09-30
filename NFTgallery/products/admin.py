@@ -8,7 +8,6 @@ from .models import (
 )
 #
 admin.site.register(Auction)
-admin.site.register(AuctionProduct)
 #
 
 
@@ -63,6 +62,11 @@ class ProductsImageAdmin(admin.ModelAdmin):
 class CategoryAdmin(TreeAdmin):
     form = movenodeform_factory(Category)
     list_display = ['title', 'id']
+
+
+@admin.register(AuctionProduct)
+class AuctionProductAdmin(admin.ModelAdmin):
+    list_display = ['id', 'auction', 'product']
 
 
 admin.site.register(Category, CategoryAdmin)

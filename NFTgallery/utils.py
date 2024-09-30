@@ -46,13 +46,12 @@ def calculate_product_profit(price, percent):
     return price - profit
 
 
-def update_presenting_detail(auction_product, *args, **kwargs):
+def update_presenting_detail(auction_product, empty=False):
     images = auction_product.product.images.all()
-    # for image in images:
-    #     print(image.image.url)
     ch = get_channel_layer()
     async_to_sync(ch.group_send)
     async_to_sync(ch.group_send)('product_detail', {'type': 'update',
                                                     'product': auction_product.product,
                                                     'auction_product': auction_product,
-                                                    'images': images})
+                                                    'images': images,
+                                                    'is_empty': empty})

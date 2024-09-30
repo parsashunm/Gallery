@@ -92,7 +92,7 @@ class CreateAuctionProductSerializer(serializers.ModelSerializer):
         fields = ['product', 'base_price', 'minimum_bid_increment']
 
     def create(self, validated_data):
-        validated_data['auction'] = Auction.objects.first()
+        validated_data['auction'] = Auction.objects.get(status=True)
         return super().create(validated_data)
 
 

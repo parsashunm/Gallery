@@ -40,6 +40,12 @@ class Auction(models.Model):
 
 
 class AuctionProduct(models.Model):
+
+    class StatusOption(models.TextChoices):
+        sold = 'sold'
+        unknown = 'unknown'
+        not_sold = 'not sold'
+
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='auction')
     descriptions = models.TextField(null=True, blank=True)
@@ -48,9 +54,10 @@ class AuctionProduct(models.Model):
     minimum_bid_increment = models.PositiveIntegerField()
     best_price = models.PositiveIntegerField(default=0)
 
-    possible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    possible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_presenting = models.BooleanField(default=False)
+    status = models.CharField(choices=StatusOption.choices, default=StatusOption.not_sold, max_length=64)
 
     def __str__(self):
         return f"{self.auction.title} - {self.product.title}"

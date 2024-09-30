@@ -41,17 +41,20 @@ class AuctionProductDetailConsumer(WebsocketConsumer):
         pass
 
     def update(self, data):
-        auction_product = data['auction_product']
-        product = data['product']
-        images = data['images']
-        images_url = [image.image.url for image in images]
-        self.send(text_data=json.dumps({
-            'title': product.title,
-            'images': images_url,
-            'descriptions': auction_product.descriptions,
-            'base_price': auction_product.base_price,
-            'best_price': auction_product.best_price,
-        }))
+        if data['is_empty']:
+            self.send(text_data='there is no product for presenting')
+        else:
+            auction_product = data['auction_product']
+            product = data['product']
+            images = data['images']
+            images_url = [image.image.url for image in images]
+            self.send(text_data=json.dumps({
+                'title': product.title,
+                'images': images_url,
+                'descriptions': auction_product.descriptions,
+                'base_price': auction_product.base_price,
+                'best_price': auction_product.best_price,
+            }))
 
     def disconnect(self, code):
         pass
