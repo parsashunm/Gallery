@@ -71,13 +71,14 @@ class BuyProductView(APIView):
     def get(self, request, *args, **kwargs):
         product = Product.objects.get(pk=kwargs['product_id'])
         user = request.user
-        if user.wallet.balance >= product.price:
+        if user.wallet.balance >= product.price and user.wallet.debt < 1:
             print(user.wallet.balance)
             print(product.price)
             user.wallet.balance -= product.price
             user.wallet.save()
             product.owner.wallet.balance += calculate_product_profit(product.price, 10)
             product.owner.wallet.save()
+            product.is_buyable = False
             product.owner = user
             product.save()
             return Response('you bought the product successfully')

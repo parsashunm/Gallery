@@ -44,10 +44,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_admin
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not hasattr(self, 'wallet'):
-            Wallet.objects.create(owner=self)
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     if not hasattr(self, 'wallet'):
+    #         Wallet.objects.create(owner=self)
+    #     if not hasattr(self, 'card'):
+    #         Card.objects.create(owner=self)
+    #     if not hasattr(self, 'wishlist'):
+    #         WishList.objects.create(owner=self)
 
 
     @property

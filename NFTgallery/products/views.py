@@ -1,7 +1,6 @@
-from django.shortcuts import redirect
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -9,8 +8,9 @@ from permissions import IsSpecificUser, IsPresenter, IsArtist
 from utils import calculate_product_profit, update_presenting_detail
 #
 from .serializers import (CreateAuctionProductSerializer, ProductsCreateSerializer, CreateAuctionSerializer,
-                          ActionProductSerializer, ProductsSerializer)
-from .models import (Product, Auction, AuctionProduct)
+                          ActionProductSerializer, ProductsSerializer, CardDetailSerializer, WishListSerializer)
+from accounts.models import User
+from .models import (Product, Auction, AuctionProduct, Card, WishList)
 #
 
 
@@ -102,13 +102,94 @@ class CloseAuctionProduct(APIView):
         if auction_product.possible_user:
             if auction_product.possible_user.wallet.debt == 0:
                 auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price
+                auction_product.product.owner.wallet.balance += calculate_product_profit(auction_product.best_price, 10)
                 auction_product.product.owner = auction_product.possible_user
                 auction_product.status = auction_product.StatusOption.sold
                 auction_product.save()
                 auction_product.product.save()
                 auction_product.possible_user.wallet.save()
+                auction_product.product.owner.wallet.save()
                 update_presenting_detail(auction_product=auction_product, empty=True)
                 return Response('done', status=status.HTTP_200_OK)
+            auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price - auction_product.possible_user.wallet.debt
+            auction_product.possible_user.wallet.save()
             auction_product.status = auction_product.StatusOption.unknown
+            auction_product.save()
             return Response('mojudi shoma kafi nemibashad lotfa hesab khod ra ta sa`at 00:00 sharj konid')
         return Response('kharidari baraye in mahsol peyda nashod')
+
+
+class AddToCard(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, product_id):
+        card = Card.objects.get(owner=request.user)
+        product = Product.objects.get(pk=product_id)
+        if product.is_buyable:
+            card.product.add(product)
+            card.save()
+            return Response('done')
+        return Response("product isn't buyable")
+
+
+class CardDetailView(APIView):
+
+    permission_classes = [IsSpecificUser]
+
+    def get(self, request, user_id):
+        user = User.objects.get(pk=user_id)
+        card = user.card
+        for product in card.product:
+            if not product.is_buyable:
+                card.product.remove(product)
+                card.save()
+        srz_data = CardDetailSerializer({
+            'product': card.product.all(),
+            'total': card.total_price()
+        })
+        return Response(srz_data.data)
+
+
+class RemoveFromCard(APIView):
+
+    permission_classes = [IsSpecificUser]
+
+    def get(self, request, user_id, product_id):
+        card = User.objects.get(pk=user_id).card
+        product = Product.objects.get(pk=product_id)
+        card.product.remove(product)
+        return Response('done')
+
+
+class AddToWishList(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, product_id):
+        wishlist = WishList.objects.get(owner=request.user)
+        product = Product.objects.get(pk=product_id)
+        wishlist.product.add(product)
+        wishlist.save()
+        return Response('done')
+
+
+class WishListDetailView(RetrieveAPIView):
+
+    permission_classes = [IsSpecificUser]
+
+    serializer_class = WishListSerializer
+    queryset = WishList.objects.all()
+    lookup_field = 'owner'
+    lookup_url_kwarg = 'user_id'
+
+
+class RemoveFromWishList(APIView):
+
+    permission_classes = [IsSpecificUser]
+
+    def get(self, request, user_id, product_id):
+        wishlist = User.objects.get(pk=user_id).wishlist
+        product = Product.objects.get(pk=product_id)
+        wishlist.product.remove(product)
+        return Response('done')

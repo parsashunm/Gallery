@@ -39,7 +39,7 @@ def send_otp(num, code):
 
 
 def calculate_product_profit(price, percent):
-    profit = (price / 100) * percent
+    profit = (price // 100) * percent
     treasury = Treasury.objects.first()
     treasury.profit += profit
     treasury.save()
