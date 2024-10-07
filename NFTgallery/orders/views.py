@@ -71,13 +71,14 @@ class BuyProductView(APIView):
     def get(self, request, *args, **kwargs):
         product = Product.objects.get(pk=kwargs['product_id'])
         user = request.user
-        if user.wallet.balance >= product.price:
+        if user.wallet.balance >= product.price and user.wallet.debt < 1:
             print(user.wallet.balance)
             print(product.price)
             user.wallet.balance -= product.price
             user.wallet.save()
             product.owner.wallet.balance += calculate_product_profit(product.price, 10)
             product.owner.wallet.save()
+            product.is_buyable = False
             product.owner = user
             product.save()
             return Response('you bought the product successfully')
@@ -100,22 +101,33 @@ class OfferRegisterView(APIView):
             if (request.user.wallet.balance * 2) >= offer:
                 if offer >= (best_price + auction_product.minimum_bid_increment):
                     possible_user = request.user
+                    clean_offer = offer
 
                     try:
                         last_offer_user = auction_product.possible_user
                         past_best_price = auction_product.best_price
-                        last_offer_user.wallet.blocked_balance -= past_best_price
+                        clean_price = past_best_price
+                        if last_offer_user.wallet.blocked_balance < past_best_price:
+                            clean_price = past_best_price - last_offer_user.wallet.debt
+                            last_offer_user.wallet.debt -= past_best_price - last_offer_user.wallet.blocked_balance
+                        last_offer_user.wallet.blocked_balance -= clean_price
                         last_offer_user.wallet.balance += past_best_price
                         last_offer_user.wallet.save()
                     except:
                         pass
 
-                    possible_user.wallet.balance -= offer
-                    possible_user.wallet.blocked_balance += offer
+                    if offer > possible_user.wallet.balance:
+                        possible_user.wallet.debt += offer - possible_user.wallet.balance
+                        clean_offer = offer - possible_user.wallet.debt
+
+                    possible_user.wallet.balance -= clean_offer
+                    possible_user.wallet.blocked_balance += clean_offer
                     possible_user.wallet.save()
+
                     auction_product.best_price = offer
                     auction_product.possible_user = possible_user
                     auction_product.save()
+
                     update_presenting_detail(auction_product)
 
                     return Response('done')

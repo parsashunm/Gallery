@@ -7,8 +7,8 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 #
 from products.serializers import (
-    ProductsImageSerializer,
-    ProductsSerializer,
+    ProductsImageListSerializer,
+    ProductsSerializer
 )
 from products.models import Product
 #
@@ -17,8 +17,9 @@ from products.models import Product
 class ProductsListView(ListAPIView):
 
     """
-    no need to send anything
+        no need to send anything
+        will return a list of products that are buyable
     """
 
     serializer_class = ProductsSerializer
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(is_buyable=True)

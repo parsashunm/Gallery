@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'treebeard',
+    'django_celery_beat',
     # third-party apps,
     'drf_spectacular',
     'oauth2_provider',

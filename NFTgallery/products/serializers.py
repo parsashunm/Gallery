@@ -1,11 +1,13 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+
+from accounts.models import User
 #
-from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue)
+from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue, Card, WishList)
 #
 
 
-class ProductsImageSerializer(serializers.ModelSerializer):
+class ProductsImageListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductsImage
         fields = ['image']
@@ -33,7 +35,7 @@ class ProductAttributeValueSerializer(serializers.ModelSerializer):
 
 
 class ProductsSerializer(serializers.ModelSerializer):
-    images = ProductsImageSerializer(many=True)
+    images = ProductsImageListSerializer(many=True)
     attributes = ProductAttributeValueSerializer(many=True)
     category = CategorySerializer()
 
@@ -92,13 +94,13 @@ class CreateAuctionProductSerializer(serializers.ModelSerializer):
         fields = ['product', 'base_price', 'minimum_bid_increment']
 
     def create(self, validated_data):
-        validated_data['auction'] = Auction.objects.first()
+        validated_data['auction'] = Auction.objects.get(status=True)
         return super().create(validated_data)
 
 
 class AuctionProductSerializer(serializers.ModelSerializer):
 
-    images = ProductsImageSerializer()
+    images = ProductsImageListSerializer()
 
     class Meta:
         model = Product
@@ -112,3 +114,17 @@ class ActionProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuctionProduct
         fields = ['product', 'base_price', 'minimum_bid_increment']
+
+
+class CardDetailSerializer(serializers.Serializer):
+
+    product = ProductsSerializer(many=True)
+    total = serializers.CharField(max_length=64)
+
+
+class WishListSerializer(serializers.ModelSerializer):
+    # product = ProductsSerializer(many=True)
+
+    class Meta:
+        model = WishList
+        fields = ['owner', 'product']

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 from django.utils.text import slugify
 from unidecode import unidecode
 from treebeard.mp_tree import MP_Node
@@ -15,14 +16,13 @@ class ProductsImage(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=128)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
-    images = models.ManyToManyField(ProductsImage, related_name='product', blank=True, null=True)
+    images = models.ManyToManyField(ProductsImage, related_name='product', blank=True)
     price = models.PositiveIntegerField()
     descriptions = models.TextField()
 
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
 
     is_buyable = models.BooleanField(default=True)
-    is_sold = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -40,6 +40,12 @@ class Auction(models.Model):
 
 
 class AuctionProduct(models.Model):
+
+    class StatusOption(models.TextChoices):
+        sold = 'sold'
+        unknown = 'unknown'
+        not_sold = 'not sold'
+
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='auction')
     descriptions = models.TextField(null=True, blank=True)
@@ -48,9 +54,10 @@ class AuctionProduct(models.Model):
     minimum_bid_increment = models.PositiveIntegerField()
     best_price = models.PositiveIntegerField(default=0)
 
-    possible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    possible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_presenting = models.BooleanField(default=False)
+    status = models.CharField(choices=StatusOption.choices, default=StatusOption.not_sold, max_length=64)
 
     def __str__(self):
         return f"{self.auction.title} - {self.product.title}"
@@ -88,3 +95,20 @@ class ProductAttributeValue(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes', null=True, blank=True)
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE)
     value = models.ManyToManyField(AttributeValue)
+
+
+class Card(models.Model):
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='card')
+    product = models.ManyToManyField(Product)
+
+    class Meta:
+        verbose_name = 'Card'
+        verbose_name_plural = 'Cards'
+
+    def total_price(self):
+        return sum(product.price for product in self.product.all())
+
+
+class WishList(models.Model):
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wishlist')
+    product = models.ManyToManyField(Product)
