@@ -2,8 +2,7 @@ from azbankgateways.urls import az_bank_gateways_urls
 from django.urls import path
 #
 from .views import BuyProductView, VerifyPurchaseView, ChargeWalletView, OfferRegisterView
-
-app_name = 'orders'
+#
 
 urlpatterns = [
     path('product/buy/<int:product_id>/', BuyProductView.as_view(), name='buy_product'),
