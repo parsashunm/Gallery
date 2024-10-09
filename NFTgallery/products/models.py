@@ -112,3 +112,8 @@ class Card(models.Model):
 class WishList(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wishlist')
     product = models.ManyToManyField(Product)
+
+
+class ProductTag(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='tags', null=True, blank=True)
+    title = models.CharField(max_length=64)
