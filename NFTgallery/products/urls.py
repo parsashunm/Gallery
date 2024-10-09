@@ -6,8 +6,6 @@ from .views import (CreateProductView, CreateAuctionView, CreateAuctionProductVi
                     )
 #
 
-app_name = 'products'
-
 urlpatterns = [
     path('create/', CreateProductView.as_view(), name='create_product'),
     # path('card/detail/<int:user_id>/', CardDetailView.as_view(), name='card-detail'),

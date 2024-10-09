@@ -6,8 +6,9 @@ from utils import calculate_product_profit
 #
 from .models import (
     Product, ProductsImage, Auction, AuctionProduct, Category, Attribute, AttributeValue, ProductAttributeValue, Card,
-    WishList
+    WishList, ProductTag
 )
+#
 
 
 @admin.register(AttributeValue)
@@ -31,10 +32,15 @@ class AttributeAdmin(admin.ModelAdmin):
     inlines = [AttributeValueInLine]
 
 
+class ProductTagInLine(admin.TabularInline):
+    model = ProductTag
+    extra = 0
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'owner', 'price']
-    inlines = [ProductAttributeValueInLine]
+    inlines = [ProductAttributeValueInLine, ProductTagInLine]
 
 
 @admin.register(ProductsImage)

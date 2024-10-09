@@ -30,10 +30,10 @@ urlpatterns = [
     path('api/admin/', admin.site.urls),
 
     # my apps
-    path('api/', include('home.urls', namespace='home')),
-    path('api/products/', include('products.urls', namespace='products')),
-    path('api/accounts/', include('accounts.urls', namespace='accounts')),
-    path('api/orders/', include('orders.urls', namespace='orders')),
+    path('api/', include('home.urls')),
+    path('api/products/', include('products.urls')),
+    path('api/accounts/', include('accounts.urls')),
+    path('api/orders/', include('orders.urls')),
 
     # def-spectacular
     path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),

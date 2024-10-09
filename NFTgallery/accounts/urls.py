@@ -3,8 +3,6 @@ from django.urls import path, include
 from .views import (UserLoginView, UserLogOutView, UserCreateView, ConfirmOtpView)
 #
 
-app_name = 'accounts'
-
 urlpatterns = [
     path('user/register/', UserCreateView.as_view(), name='user_register'),
     path('user/register/confirm/', ConfirmOtpView.as_view(), name='confirm_code'),
