@@ -157,3 +157,4 @@ class CartPaymentView(APIView):
                 Purchases.objects.create(buyer=user, product=product)
             return Response('the cart was purchase successfully')
         return Response('you dont have enough money')
+
