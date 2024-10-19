@@ -30,19 +30,19 @@ urlpatterns = [
     path('api/admin/', admin.site.urls),
 
     # my apps
-    path('api/', include('home.urls')),
-    path('api/products/', include('products.urls')),
-    path('api/accounts/', include('accounts.urls')),
-    path('api/orders/', include('orders.urls')),
+    path('', include('home.urls')),
+    path('products/', include('products.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('orders/', include('orders.urls')),
 
     # def-spectacular
-    path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('gtyfuhnjkvgmjnkbhjvghfdxcfgvbhbhjvghcfgvhhjbjknhjvghcvgbhj/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # oAuth2
-    path('api/createtoken/', TokenView.as_view(), name='create_token'),
-    path('api/revoketoken/', RevokeTokenView.as_view(), name='revoke_token'),
+    path('createtoken/', TokenView.as_view(), name='create_token'),
+    path('revoketoken/', RevokeTokenView.as_view(), name='revoke_token'),
 
     # bank-gateways
     path('bank/', az_bank_gateways_urls()),

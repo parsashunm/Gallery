@@ -1,16 +1,20 @@
+import numpy as np
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
+import cv2
+from skimage.metrics import structural_similarity as ssim
 from django.shortcuts import get_object_or_404
 from permissions import IsSpecificUser, IsPresenter, IsArtist
-from utils import calculate_product_profit, update_presenting_detail
 #
+from utils import calculate_product_profit, update_presenting_detail
 from .serializers import (CreateAuctionProductSerializer, ProductsCreateSerializer, CreateAuctionSerializer,
-                          ActionProductSerializer, ProductsSerializer, CardDetailSerializer, WishListSerializer)
+                          ActionProductSerializer, ProductsSerializer, CartDetailSerializer, WishListSerializer,
+                          CompareImagesSerializers)
 from accounts.models import User
-from .models import (Product, Auction, AuctionProduct, Card, WishList)
+from .models import (Product, Auction, AuctionProduct, Cart, WishList)
 #
 
 
@@ -96,7 +100,6 @@ class CloseAuctionProduct(APIView):
 
     permission_classes = [IsPresenter]
     queryset = AuctionProduct.objects.all()
-
     def post(self, request):
         auction_product = get_object_or_404(AuctionProduct, is_presenting=True)
         if auction_product.possible_user:
@@ -119,12 +122,12 @@ class CloseAuctionProduct(APIView):
         return Response('kharidari baraye in mahsol peyda nashod')
 
 
-class AddToCard(APIView):
+class AddToCart(APIView):
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request, product_id):
-        card = Card.objects.get(owner=request.user)
+        card = Cart.objects.get(owner=request.user)
         product = Product.objects.get(pk=product_id)
         if product.is_buyable:
             card.product.add(product)
@@ -133,25 +136,25 @@ class AddToCard(APIView):
         return Response("product isn't buyable")
 
 
-class CardDetailView(APIView):
+class CartDetailView(APIView):
 
     permission_classes = [IsSpecificUser]
 
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
-        card = user.card
+        card = user.cart
         for product in card.product:
             if not product.is_buyable:
                 card.product.remove(product)
                 card.save()
-        srz_data = CardDetailSerializer({
+        srz_data = CartDetailSerializer({
             'product': card.product.all(),
             'total': card.total_price()
         })
         return Response(srz_data.data)
 
 
-class RemoveFromCard(APIView):
+class RemoveFromCart(APIView):
 
     permission_classes = [IsSpecificUser]
 
@@ -193,3 +196,27 @@ class RemoveFromWishList(APIView):
         product = Product.objects.get(pk=product_id)
         wishlist.product.remove(product)
         return Response('done')
+
+
+class CompareImagesView(APIView):
+
+    permission_classes = [IsArtist]
+
+    def post(self, request):
+        srz_data = CompareImagesSerializers(data=request.data)
+        if srz_data.is_valid():
+            image1 = srz_data.validated_data['image1']
+            image2 = srz_data.validated_data['image2']
+
+            img1 = cv2.imdecode(np.frombuffer(image1.read(), np.uint8), cv2.IMREAD_GRAYSCALE)
+            img2 = cv2.imdecode(np.frombuffer(image2.read(), np.uint8), cv2.IMREAD_GRAYSCALE)
+
+            img1 = cv2.resize(img1, (256, 256))
+            img2 = cv2.resize(img2, (256, 256))
+
+            score, _ = ssim(img1, img2, full=True)
+            similarity_percentage = score * 100
+
+            return Response({"similarity_percentage": f"{similarity_percentage:.2f}%"})
+
+        return Response(srz_data.errors, status=400)

@@ -10,7 +10,7 @@ from azbankgateways import (
 )
 #
 from accounts.models import User
-from orders.models import Treasury
+from orders.models import Treasury, Purchases
 from orders.payment_portal import go_to_gateway_view
 from products.models import Product, AuctionProduct, ProductsImage
 from utils import calculate_product_profit, update_presenting_detail
@@ -134,3 +134,26 @@ class OfferRegisterView(APIView):
                 return Response("please offer higher price")
             return Response("you dont have that many")
         return Response("this product isn't presenting")
+
+
+class CartPaymentView(APIView):
+    """
+    just need an address-id
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        user = request.user
+        if user.wallet.balance >= user.cart.total_price():
+            for product in user.cart:
+                user.wallet.balance -= product.price
+                product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+                product.owner = user
+                user.wallet.save()
+                product.owner.wallet.save()
+                product.save()
+                Purchases.objects.create(buyer=user, product=product)
+            return Response('the cart was purchase successfully')
+        return Response('you dont have enough money')

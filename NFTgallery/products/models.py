@@ -97,13 +97,13 @@ class ProductAttributeValue(models.Model):
     value = models.ManyToManyField(AttributeValue)
 
 
-class Card(models.Model):
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='card')
+class Cart(models.Model):
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
     product = models.ManyToManyField(Product)
 
     class Meta:
-        verbose_name = 'Card'
-        verbose_name_plural = 'Cards'
+        verbose_name = 'Cart'
+        verbose_name_plural = 'Carts'
 
     def total_price(self):
         return sum(product.price for product in self.product.all())

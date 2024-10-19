@@ -90,3 +90,9 @@ class Role(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Address(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    postal_code = models.ImageField(max_length=13)
+    address = models.TextField()

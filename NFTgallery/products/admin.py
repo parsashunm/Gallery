@@ -5,7 +5,7 @@ from django.contrib import messages
 from utils import calculate_product_profit
 #
 from .models import (
-    Product, ProductsImage, Auction, AuctionProduct, Category, Attribute, AttributeValue, ProductAttributeValue, Card,
+    Product, ProductsImage, Auction, AuctionProduct, Category, Attribute, AttributeValue, ProductAttributeValue, Cart,
     WishList, ProductTag
 )
 #
@@ -106,8 +106,8 @@ class AuctionProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'auction', 'product']
 
 
-@admin.register(Card)
-class CardAdmin(admin.ModelAdmin):
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
     list_display = ['id', 'owner']
 
 

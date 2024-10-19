@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import User
 #
-from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue, Card, WishList)
+from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue, Cart, WishList)
 #
 
 
@@ -116,7 +116,7 @@ class ActionProductSerializer(serializers.ModelSerializer):
         fields = ['product', 'base_price', 'minimum_bid_increment']
 
 
-class CardDetailSerializer(serializers.Serializer):
+class CartDetailSerializer(serializers.Serializer):
 
     product = ProductsSerializer(many=True)
     total = serializers.CharField(max_length=64)
@@ -128,3 +128,8 @@ class WishListSerializer(serializers.ModelSerializer):
     class Meta:
         model = WishList
         fields = ['owner', 'product']
+
+
+class CompareImagesSerializers(serializers.Serializer):
+    image1 = serializers.ImageField()
+    image2 = serializers.ImageField()
