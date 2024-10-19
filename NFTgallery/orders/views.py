@@ -10,10 +10,12 @@ from azbankgateways import (
 )
 #
 from accounts.models import User
-from orders.models import Treasury
+from orders.models import Treasury, Purchases
 from orders.payment_portal import go_to_gateway_view
-from products.models import Product
-from utils import calculate_product_profit
+from products.models import Product, AuctionProduct, ProductsImage
+from utils import calculate_product_profit, update_presenting_detail
+
+
 #
 
 
@@ -64,18 +66,95 @@ class BuyProductView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = None
 
     def get(self, request, *args, **kwargs):
         product = Product.objects.get(pk=kwargs['product_id'])
         user = request.user
-        if user.wallet.balance >= product.price:
+        if user.wallet.balance >= product.price and user.wallet.debt < 1:
             print(user.wallet.balance)
             print(product.price)
             user.wallet.balance -= product.price
             user.wallet.save()
             product.owner.wallet.balance += calculate_product_profit(product.price, 10)
             product.owner.wallet.save()
+            product.is_buyable = False
             product.owner = user
             product.save()
             return Response('you bought the product successfully')
         return Response("your balance isn't enough")
+
+
+class OfferRegisterView(APIView):
+
+    """
+        needs just id as auction product id and offer in request body
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        auction_product = AuctionProduct.objects.get(id=request.data['id'])
+        offer = int(request.data['offer'])
+        best_price = max(auction_product.best_price, auction_product.base_price)
+        if auction_product.is_presenting:
+            if (request.user.wallet.balance * 2) >= offer:
+                if offer >= (best_price + auction_product.minimum_bid_increment):
+                    possible_user = request.user
+                    clean_offer = offer
+
+                    try:
+                        last_offer_user = auction_product.possible_user
+                        past_best_price = auction_product.best_price
+                        clean_price = past_best_price
+                        if last_offer_user.wallet.blocked_balance < past_best_price:
+                            clean_price = past_best_price - last_offer_user.wallet.debt
+                            last_offer_user.wallet.debt -= past_best_price - last_offer_user.wallet.blocked_balance
+                        last_offer_user.wallet.blocked_balance -= clean_price
+                        last_offer_user.wallet.balance += past_best_price
+                        last_offer_user.wallet.save()
+                    except:
+                        pass
+
+                    if offer > possible_user.wallet.balance:
+                        possible_user.wallet.debt += offer - possible_user.wallet.balance
+                        clean_offer = offer - possible_user.wallet.debt
+
+                    possible_user.wallet.balance -= clean_offer
+                    possible_user.wallet.blocked_balance += clean_offer
+                    possible_user.wallet.save()
+
+                    auction_product.best_price = offer
+                    auction_product.possible_user = possible_user
+                    auction_product.save()
+
+                    update_presenting_detail(auction_product)
+
+                    return Response('done')
+                return Response("please offer higher price")
+            return Response("you dont have that many")
+        return Response("this product isn't presenting")
+
+
+class CartPaymentView(APIView):
+    """
+    just need an address-id
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        user = request.user
+        if user.wallet.balance >= user.cart.total_price():
+            for product in user.cart:
+                user.wallet.balance -= product.price
+                product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+                product.owner = user
+                user.wallet.save()
+                product.owner.wallet.save()
+                product.save()
+                Purchases.objects.create(buyer=user, product=product)
+            return Response('the cart was purchase successfully')
+        return Response('you dont have enough money')
+

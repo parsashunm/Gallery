@@ -1,11 +1,13 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
+
+from accounts.models import User
 #
-from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductClass, Option, OptionGroup,
-                     ProductAttribute, ProductAttributeValue, OptionGroupValue)
+from .models import (Product, ProductsImage, Auction, AuctionProduct, Category, ProductAttributeValue, Cart, WishList)
 #
 
 
-class ProductsImageSerializer(serializers.ModelSerializer):
+class ProductsImageListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductsImage
         fields = ['image']
@@ -26,107 +28,56 @@ class CategorySerializer(serializers.ModelSerializer):
         }
 
 
-class OptionGroupSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = OptionGroup
-        fields = '__all__'
-
-
-class OptionGroupValueSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = OptionGroupValue
-        fields = ['id', 'title']
-
-
-class OptionSerializer(serializers.ModelSerializer):
-
-    option_group = OptionGroupSerializer()
-
-    class Meta:
-        model = Option
-        exclude = ['required']
-
-
-class ProductClassSerializer(serializers.ModelSerializer):
-
-    options = OptionSerializer(many=True)
-
-    class Meta:
-        model = ProductClass
-        fields = '__all__'
-
-        extra_kwargs = {
-            'options': {'write_only': True},
-            'title': {'write_only': True},
-            'slug': {'write_only': True},
-            'description': {'write_only': True},
-        }
-
-
-class ProductAttributesSerializer(serializers.ModelSerializer):
-
-    product_class = ProductClassSerializer()
-    option_group = OptionGroupSerializer()
-
-    class Meta:
-        model = ProductAttribute
-        fields = '__all__'
-
-        extra_kwargs = {
-            'product_class': {'write_only': True},
-            'type': {'write_only': True},
-            'required': {'write_only': True},
-        }
-
-
-class BetaProductAttributesSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ProductAttribute
-        fields = '__all__'
-
-
 class ProductAttributeValueSerializer(serializers.ModelSerializer):
-    attribute = ProductAttributesSerializer()
-
     class Meta:
         model = ProductAttributeValue
-        exclude = ['id']
-
-    value_multi_option = OptionGroupValueSerializer(many=True, required=False)
-
-
-class BetaProductAttributeValueSerializer(serializers.ModelSerializer):
-    # attribute = BetaProductAttributesSerializer()
-
-    class Meta:
-        model = ProductAttributeValue
-        exclude = ['id']
-
-    value_multi_option = OptionGroupValueSerializer(many=True, required=False)
+        fields = ['attribute', 'value']
 
 
 class ProductsSerializer(serializers.ModelSerializer):
-    images = ProductsImageSerializer(many=True)
-
+    images = ProductsImageListSerializer(many=True)
+    attributes = ProductAttributeValueSerializer(many=True)
     category = CategorySerializer()
-    product_class = ProductClassSerializer()
-    attributes = ProductAttributeValueSerializer(many=True, source='ProductAttributeValue_set')
 
     class Meta:
         model = Product
-        exclude = ['slug', 'created_at', 'is_buyable']
+        exclude = ['created_at', 'is_buyable']
+
+
+class CreateProductAttributeValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductAttributeValue
+        exclude = ['id', 'product']
 
 
 class ProductsCreateSerializer(serializers.ModelSerializer):
 
-    attributes = BetaProductAttributeValueSerializer(many=True, source='ProductAttributeValue_set', read_only=True)
+    attributes = CreateProductAttributeValueSerializer(many=True)
 
     class Meta:
         model = Product
-        exclude = ['slug', 'created_at']
+        exclude = ['id', 'created_at']
+
+    def create(self, validated_data):
+
+        attributes_data = validated_data.pop('attributes')
+        images = validated_data.pop('images')
+
+        image_count = len(images)
+        if image_count < 3 or image_count > 5:
+            raise ValidationError('pictures should be between 3 and 5')
+
+        product = Product.objects.create(**validated_data)
+        product.images.set(images)
+
+        for attribute_data in attributes_data:
+            values = attribute_data.pop('value')
+            product_attribute_value = ProductAttributeValue.objects.create(product=product, **attribute_data)
+
+            product_attribute_value.value.set(values)
+
+        return product
 
 
 class CreateAuctionSerializer(serializers.ModelSerializer):
@@ -143,13 +94,13 @@ class CreateAuctionProductSerializer(serializers.ModelSerializer):
         fields = ['product', 'base_price', 'minimum_bid_increment']
 
     def create(self, validated_data):
-        validated_data['auction'] = Auction.objects.first()
+        validated_data['auction'] = Auction.objects.get(status=True)
         return super().create(validated_data)
 
 
 class AuctionProductSerializer(serializers.ModelSerializer):
 
-    images = ProductsImageSerializer()
+    images = ProductsImageListSerializer()
 
     class Meta:
         model = Product
@@ -163,3 +114,22 @@ class ActionProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuctionProduct
         fields = ['product', 'base_price', 'minimum_bid_increment']
+
+
+class CartDetailSerializer(serializers.Serializer):
+
+    product = ProductsSerializer(many=True)
+    total = serializers.CharField(max_length=64)
+
+
+class WishListSerializer(serializers.ModelSerializer):
+    # product = ProductsSerializer(many=True)
+
+    class Meta:
+        model = WishList
+        fields = ['owner', 'product']
+
+
+class CompareImagesSerializers(serializers.Serializer):
+    image1 = serializers.ImageField()
+    image2 = serializers.ImageField()

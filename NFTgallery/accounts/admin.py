@@ -8,8 +8,12 @@ from .forms import UserCreationForm
 
 # register accounts
 admin.site.register(OTP)
-admin.site.register(Role)
 #
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title']
 
 
 @admin.register(Wallet)
