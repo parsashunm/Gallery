@@ -21,7 +21,7 @@ def set_default_role(sender, **kwargs):
 def create_user(**kwargs):
     if not hasattr(kwargs['instance'], 'wallet'):
         Wallet.objects.create(owner=kwargs['instance'])
-    if not hasattr(kwargs['instance'], 'card'):
+    if not hasattr(kwargs['instance'], 'cart'):
         Cart.objects.create(owner=kwargs['instance'])
     if not hasattr(kwargs['instance'], 'wishlist'):
         WishList.objects.create(owner=kwargs['instance'])

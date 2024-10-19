@@ -100,7 +100,6 @@ class CloseAuctionProduct(APIView):
 
     permission_classes = [IsPresenter]
     queryset = AuctionProduct.objects.all()
-
     def post(self, request):
         auction_product = get_object_or_404(AuctionProduct, is_presenting=True)
         if auction_product.possible_user:
