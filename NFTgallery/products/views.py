@@ -7,6 +7,8 @@ from rest_framework import status
 import cv2
 from skimage.metrics import structural_similarity as ssim
 from django.shortcuts import get_object_or_404
+
+from orders.models import Purchase
 from permissions import IsSpecificUser, IsPresenter, IsArtist
 #
 from utils import calculate_product_profit, update_presenting_detail
@@ -105,19 +107,27 @@ class CloseAuctionProduct(APIView):
         auction_product = get_object_or_404(AuctionProduct, is_presenting=True)
         if auction_product.possible_user:
             if auction_product.possible_user.wallet.debt == 0:
+
                 auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price
                 auction_product.product.owner.wallet.balance += calculate_product_profit(auction_product.best_price, 10)
                 auction_product.product.owner = auction_product.possible_user
                 auction_product.status = auction_product.StatusOption.sold
+
+                Purchase.objects.create(buyer=auction_product.possible_user,
+                                        address='purchased in Auction', product=auction_product)
+
                 auction_product.save()
                 auction_product.product.save()
                 auction_product.possible_user.wallet.save()
                 auction_product.product.owner.wallet.save()
+
                 update_presenting_detail(auction_product=auction_product, empty=True)
                 return Response('done', status=status.HTTP_200_OK)
+
             auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price - auction_product.possible_user.wallet.debt
             auction_product.possible_user.wallet.save()
             auction_product.status = auction_product.StatusOption.unknown
+
             auction_product.save()
             return Response('mojudi shoma kafi nemibashad lotfa hesab khod ra ta sa`at 00:00 sharj konid')
         return Response('kharidari baraye in mahsol peyda nashod')

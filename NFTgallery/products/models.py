@@ -99,7 +99,7 @@ class ProductAttributeValue(models.Model):
 
 class Cart(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
-    product = models.ManyToManyField(Product)
+    product = models.ManyToManyField(Product, blank=True)
 
     class Meta:
         verbose_name = 'Cart'

@@ -10,7 +10,7 @@ from azbankgateways import (
 )
 #
 from accounts.models import User
-from orders.models import Treasury, Purchases
+from orders.models import Treasury, Purchase
 from orders.payment_portal import go_to_gateway_view
 from products.models import Product, AuctionProduct, ProductsImage
 from utils import calculate_product_profit, update_presenting_detail
@@ -147,14 +147,17 @@ class CartPaymentView(APIView):
         data = request.data
         user = request.user
         if user.wallet.balance >= user.cart.total_price():
-            for product in user.cart:
-                user.wallet.balance -= product.price
-                product.owner.wallet.balance += calculate_product_profit(product.price, 10)
-                product.owner = user
-                user.wallet.save()
-                product.owner.wallet.save()
-                product.save()
-                Purchases.objects.create(buyer=user, product=product)
+            for product in user.cart.product.all():
+                if product.is_buyable:
+                    user.wallet.balance -= product.price
+                    product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+                    product.owner = user
+                    product.is_buyable = False
+                    user.wallet.save()
+                    product.owner.wallet.save()
+                    product.save()
+                    Purchase.objects.create(buyer=user, product=product, address_id=data['address'])
+            user.cart.product.clear()
             return Response('the cart was purchase successfully')
         return Response('you dont have enough money')
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUsrAdmin
 # 
 from .models import (
-    User, OTP, Wallet, Role,
+    User, OTP, Wallet, Role, Address,
 )
 from .forms import UserCreationForm
 
@@ -71,3 +71,11 @@ class UserAdmin(BaseUsrAdmin):
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ['id', 'owner']
+
+
+

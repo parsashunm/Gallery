@@ -14,7 +14,7 @@ class Treasury(models.Model):
         return self.title
 
 
-class Purchases(models.Model):
+class Purchase(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='purchases', null=True)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
@@ -22,4 +22,4 @@ class Purchases(models.Model):
     is_sent = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.buyer.username}'s purchase"
+        return f"{self.buyer.username} - {self.product.title}"
