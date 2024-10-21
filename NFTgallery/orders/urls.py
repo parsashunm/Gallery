@@ -1,7 +1,8 @@
 from azbankgateways.urls import az_bank_gateways_urls
 from django.urls import path
 #
-from .views import BuyProductView, VerifyPurchaseView, ChargeWalletView, OfferRegisterView
+from .views import BuyProductView, VerifyPurchaseView, ChargeWalletView, OfferRegisterView, CartPaymentView
+
 #
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     # az_bank_gateways
     # path("bankgateways/", az_bank_gateways_urls(), name='purchase_product'),
     # path("test/", az_bank_gateways_urls(), name='verify_purchase'),
+    # path('cart/pay/', CartPaymentView.as_view(), name='cart-pay'),
 ]

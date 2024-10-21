@@ -94,5 +94,8 @@ class Role(models.Model):
 
 class Address(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
-    postal_code = models.ImageField(max_length=13)
+    postal_code = models.IntegerField()
     address = models.TextField()
+
+    class Meta:
+        verbose_name_plural = 'addresses'

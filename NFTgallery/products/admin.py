@@ -2,6 +2,8 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 from django.contrib import messages
+
+from orders.models import Purchase
 from utils import calculate_product_profit
 #
 from .models import (
@@ -86,6 +88,9 @@ def check_auction_orders(modeladmin, request, queryset):
 
             product.status = product.StatusOption.sold
             product.save()
+
+            Purchase.objects.create(buyer=product.possible_user,
+                                    address='purchased in Auction', product=product)
         else:
 
             fine = product.best_price - product.possible_user.wallet.debt
