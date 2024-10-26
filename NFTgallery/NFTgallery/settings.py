@@ -41,11 +41,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'treebeard',
-    'django_celery_beat',
     # third-party apps,
+    'django_celery_beat'
     'drf_spectacular',
     'oauth2_provider',
-    'azbankgateways',
     # my apps
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
@@ -145,6 +144,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
+# static files
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
@@ -178,8 +178,8 @@ OAUTH2_PROVIDER = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Gallery API',
-    'DESCRIPTION': 'for any question <a href="https://t.me/parsashunm">text me</a>',
-    'VERSION': '0.1.1',
+    'DESCRIPTION': 'for any question : <a href="https://t.me/parsashunm">text me</a>',
+    'VERSION': '2.2.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
@@ -192,28 +192,6 @@ SPECTACULAR_SETTINGS = {
 # AWS_SERVICE_NAME = 's3'
 # AWS_S3_FILE_OVERWRITE = False
 # AWS_LOCAL_STORAGE = f'{BASE_DIR}/aws/'
-
-
-# payment_portal
-AZ_IRANIAN_BANK_GATEWAYS = {
-    "SEP": {
-            "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
-            "TERMINAL_CODE": "<YOUR TERMINAL CODE>",
-    },
-    "IDPAY": {
-        'MERCHENT_CODE': 'test',
-        'METHOD': 'POST',
-        'X_SANDBOX': 1
-    },
-    "DEFAULT": "IDPAY",
-    "CURRENCY": "IRT",
-    "TRACKING_CODE_QUERY_PARAM": "tc",
-    "TRACKING_CODE_LENGTH": 16,
-    "SETTING_VALUE_READER_CLASS": "azbankgateways.readers.DefaultReader",
-    "IS_SAFE_GET_GATEWAY_PAYMENT": False,
-    "CUSTOM_APP": 'NFTgallery:orders',
-}
-SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 
 # channels

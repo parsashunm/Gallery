@@ -19,7 +19,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from azbankgateways.urls import az_bank_gateways_urls
 from oauth2_provider.views import TokenView, RevokeTokenView
 #
 from orders.views import BuyProductView
@@ -27,7 +26,7 @@ from orders.views import BuyProductView
 
 urlpatterns = [
     # admin
-    path('api/admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
 
     # my apps
     path('', include('home.urls')),
@@ -43,9 +42,6 @@ urlpatterns = [
     # oAuth2
     path('createtoken/', TokenView.as_view(), name='create_token'),
     path('revoketoken/', RevokeTokenView.as_view(), name='revoke_token'),
-
-    # bank-gateways
-    path('bank/', az_bank_gateways_urls()),
     path('go-to-getway/<int:user_id>/<int:price>/', BuyProductView.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
