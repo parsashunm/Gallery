@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUsrAdmin
+from oauth2_provider.models import AccessToken
 # 
 from .models import (
     User, OTP, Wallet, Role, Address,
