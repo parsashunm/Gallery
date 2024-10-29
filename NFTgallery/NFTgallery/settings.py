@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'channels',
     'treebeard',
     # third-party apps,
-    'django_celery_beat'
+    'django_celery_beat',
     'drf_spectacular',
     'oauth2_provider',
     # my apps

@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
 #
-from .models import User
+from .models import User, UserProfile
+
+
 #
 
 
@@ -44,3 +46,16 @@ class ConfirmOtpCodeSerializer(serializers.Serializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
+
+
+class UserEditProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        exclude = ['user']
