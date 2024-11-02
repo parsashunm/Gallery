@@ -102,7 +102,7 @@ class Address(models.Model):
 
 
 class UserProfile(models.Model):
-    profile = models.ImageField(upload_to='products/profiles/%Y/%m/%d/')
+    profile = models.ImageField(upload_to='user/profiles/%Y/%m/%d/')
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
