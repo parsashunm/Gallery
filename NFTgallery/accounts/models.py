@@ -44,10 +44,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_admin
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not hasattr(self, 'wallet'):
-            Wallet.objects.create(owner=self)
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     if not hasattr(self, 'wallet'):
+    #         Wallet.objects.create(owner=self)
+    #     if not hasattr(self, 'card'):
+    #         Card.objects.create(owner=self)
+    #     if not hasattr(self, 'wishlist'):
+    #         WishList.objects.create(owner=self)
 
 
     @property
@@ -59,6 +63,7 @@ class Wallet(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet', db_index=True)
     balance = models.PositiveIntegerField(default=0)
     blocked_balance = models.PositiveIntegerField(default=0)
+    debt = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'{self.owner.username}\'s wallet'
@@ -85,3 +90,19 @@ class Role(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Address(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    postal_code = models.IntegerField()
+    address = models.TextField()
+
+    class Meta:
+        verbose_name_plural = 'addresses'
+
+
+class UserProfile(models.Model):
+    profile = models.ImageField(upload_to='user/profiles/%Y/%m/%d/')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField(null=True, blank=True)
+    birth_date = models.DateField(null=True, blank=True)

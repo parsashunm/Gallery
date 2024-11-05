@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUsrAdmin
+from oauth2_provider.models import AccessToken
 # 
 from .models import (
-    User, OTP, Wallet, Role,
+    User, OTP, Wallet, Role, Address, UserProfile,
 )
 from .forms import UserCreationForm
 
@@ -71,3 +72,13 @@ class UserAdmin(BaseUsrAdmin):
     ]
 
     filter_horizontal = ('user_permissions', 'groups')
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ['id', 'owner']
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user__username']
