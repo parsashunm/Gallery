@@ -3,13 +3,15 @@ import random
 
 from django.shortcuts import redirect
 from rest_framework.views import APIView, Response
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from django.contrib.auth import authenticate
 
+from permissions import IsArtist
 from utils import send_otp
 #
-from .serializers import CreateAccountSerializer, ConfirmOtpCodeSerializer, UserLoginSerializer
-from .models import User, OTP
+from .serializers import CreateAccountSerializer, ConfirmOtpCodeSerializer, UserLoginSerializer, UserProfileSerializer, \
+    UserEditProfileSerializer
+from .models import User, OTP, UserProfile
 from accounts.oAuth import get_token, logout_user
 #
 
@@ -97,3 +99,19 @@ class UserLogOutView(APIView):
         token = request.headers.get('Authorization').split()[1]
         print(token)
         return Response(logout_user(request, token))
+
+
+class CreateUserProfileView(CreateAPIView):
+    permission_classes = [IsArtist]
+    serializer_class = UserProfileSerializer
+    queryset = UserProfile.objects.all()
+
+
+class UserEditProfileView(UpdateAPIView):
+    """
+        only request with PATCH method
+    """
+    permission_classes = [IsArtist]
+    serializer_class = UserEditProfileSerializer
+    queryset = UserProfile.objects.all()
+    lookup_field = 'user'

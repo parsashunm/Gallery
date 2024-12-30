@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k7@^p94h4rt)671z^h4v2pgz!zu7tl2uwfk%rh^9i(2@g7(jwk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'channels',
     'treebeard',
     # third-party apps,
-    'django_celery_beat'
+    'django_celery_beat',
     'drf_spectacular',
     'oauth2_provider',
     # my apps
@@ -149,7 +149,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
 # media files
-MEDIA_URL = 'api/media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type

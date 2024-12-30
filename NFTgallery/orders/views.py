@@ -10,10 +10,7 @@ from orders.models import Treasury, Purchase
 from orders.payment_portal import go_to_gateway_view
 from products.models import Product, AuctionProduct, ProductsImage
 from utils import calculate_product_profit, update_presenting_detail
-
-
 #
-
 
 class ChargeWalletView(APIView):
 
@@ -54,7 +51,7 @@ class BuyProductView(APIView):
             print(product.price)
             user.wallet.balance -= product.price
             user.wallet.save()
-            product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+            product.owner.wallet.balance += calculate_product_profit(product.price, product.category.get_parent().income)
             product.owner.wallet.save()
             product.is_buyable = False
             product.owner = user
@@ -128,7 +125,7 @@ class CartPaymentView(APIView):
             for product in user.cart.product.all():
                 if product.is_buyable:
                     user.wallet.balance -= product.price
-                    product.owner.wallet.balance += calculate_product_profit(product.price, 10)
+                    product.owner.wallet.balance += calculate_product_profit(product.price, product.category.get_parent().income)
                     product.owner = user
                     product.is_buyable = False
                     user.wallet.save()

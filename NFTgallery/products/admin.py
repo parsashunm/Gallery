@@ -80,7 +80,7 @@ def check_auction_orders(modeladmin, request, queryset):
             product.possible_user.wallet.balance -= product.possible_user.wallet.debt
             product.possible_user.wallet.save()
 
-            product.product.owner.wallet.balance += calculate_product_profit(product.best_price, 10)
+            product.product.owner.wallet.balance += calculate_product_profit(product.best_price, product.product.category.get_parent().income)
             product.product.owner.wallet.save()
 
             product.product.owner = product.possible_user
@@ -94,7 +94,7 @@ def check_auction_orders(modeladmin, request, queryset):
         else:
 
             fine = product.best_price - product.possible_user.wallet.debt
-            calculate_product_profit(fine, 10)
+            calculate_product_profit(fine, product.product.category.get_parent().income)
 
             product.status = product.StatusOption.not_sold
             product.save()

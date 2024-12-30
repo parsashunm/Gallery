@@ -109,7 +109,9 @@ class CloseAuctionProduct(APIView):
             if auction_product.possible_user.wallet.debt == 0:
 
                 auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price
-                auction_product.product.owner.wallet.balance += calculate_product_profit(auction_product.best_price, 10)
+                auction_product.product.owner.wallet.balance += calculate_product_profit(
+                    auction_product.best_price, auction_product.product.category.get_parent().income
+                )
                 auction_product.product.owner = auction_product.possible_user
                 auction_product.status = auction_product.StatusOption.sold
 
@@ -134,6 +136,9 @@ class CloseAuctionProduct(APIView):
 
 
 class AddToCart(APIView):
+    """
+    add a product to cart
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -148,6 +153,10 @@ class AddToCart(APIView):
 
 
 class CartDetailView(APIView):
+
+    """
+    view cart list
+    """
 
     permission_classes = [IsSpecificUser]
 
@@ -167,6 +176,10 @@ class CartDetailView(APIView):
 
 class RemoveFromCart(APIView):
 
+    """
+    remove a product from cart
+    """
+
     permission_classes = [IsSpecificUser]
 
     def get(self, request, user_id, product_id):
@@ -177,6 +190,10 @@ class RemoveFromCart(APIView):
 
 
 class AddToWishList(APIView):
+
+    """
+    add a product to wishlist
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -190,6 +207,10 @@ class AddToWishList(APIView):
 
 class WishListDetailView(RetrieveAPIView):
 
+    """
+    view wishlist items
+    """
+
     permission_classes = [IsSpecificUser]
 
     serializer_class = WishListSerializer
@@ -199,6 +220,10 @@ class WishListDetailView(RetrieveAPIView):
 
 
 class RemoveFromWishList(APIView):
+
+    """
+    remove a product from wishlist
+    """
 
     permission_classes = [IsSpecificUser]
 
@@ -210,6 +235,10 @@ class RemoveFromWishList(APIView):
 
 
 class CompareImagesView(APIView):
+
+    """
+    it compares two images and shows how similar they are.
+    """
 
     permission_classes = [IsArtist]
 
