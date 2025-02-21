@@ -1,9 +1,5 @@
 from django.db import models
-from django.db.models import Sum
-from django.utils.text import slugify
-from unidecode import unidecode
 from treebeard.mp_tree import MP_Node
-from django.core.exceptions import ValidationError
 #
 from accounts.models import User
 #
@@ -67,6 +63,7 @@ class Category(MP_Node):
     title = models.CharField(max_length=255, db_index=True)
     description = models.CharField(max_length=2048, null=True, blank=True)
     is_public = models.BooleanField(default=True)
+    income = models.FloatField(null=True, blank=True, default=0)
 
     def __str__(self):
         return self.title

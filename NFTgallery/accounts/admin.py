@@ -5,6 +5,7 @@ from oauth2_provider.models import AccessToken
 from .models import (
     User, OTP, Wallet, Role, Address, UserProfile,
 )
+from django.contrib.auth.admin import UserAdmin as BaseUsrAdmin
 from .forms import UserCreationForm
 
 # register accounts

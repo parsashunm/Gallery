@@ -43,8 +43,10 @@ urlpatterns = [
     path('createtoken/', TokenView.as_view(), name='create_token'),
     path('revoketoken/', RevokeTokenView.as_view(), name='revoke_token'),
     path('go-to-getway/<int:user_id>/<int:price>/', BuyProductView.as_view())
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+]
+if not settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # admin panel
 admin.site.site_title = "GalleryAP"
