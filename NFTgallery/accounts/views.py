@@ -36,7 +36,7 @@ class UserCreateView(APIView):
                 'phone': cd['phone'],
                 'password': cd['password']
             }
-            return Response('OTP sent')
+            return Response({"detail": 'OTP sent'})
         return Response(ser_data.errors)
 
 
@@ -56,13 +56,13 @@ class ConfirmOtpView(APIView):
         if srz_data.is_valid():
             vd = srz_data.validated_data
             if code_instance.expire_code():
-                return Response('code have been expired')
+                return Response({"error": 'code have been expired'})
             if str(code_instance.code) == vd['code']:
                 User.objects.create(username=user_session['username'], phone=user_session['phone'],
                                     password=user_session['password'])
                 code_instance.delete()
-                return Response('you registered successfully')
-        return Response("the code that you entered was wrong")
+                return Response({"detail": 'you registered successfully'})
+        return Response({"error": "the code that you entered was wrong"})
 
 
 class UserLoginView(APIView):
@@ -83,7 +83,7 @@ class UserLoginView(APIView):
             if user:
                 res = get_token(request, request.data['username'], request.data['password'])
                 return Response(res)
-        return Response('username or password is incorrect')
+        return Response({'error': 'username or password is incorrect'})
 
 
 class UserLogOutView(APIView):
@@ -92,12 +92,10 @@ class UserLogOutView(APIView):
     we'll get token from "Authorization" field in headers
     \n no need to send anything
     """
-
     serializer_class = None
 
     def post(self, request):
         token = request.headers.get('Authorization').split()[1]
-        print(token)
         return Response(logout_user(request, token))
 
 

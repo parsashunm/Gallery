@@ -3,7 +3,9 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_406_NOT_ACCEPTABLE
 from rest_framework.views import APIView
+from django.db import transaction
 #
 from accounts.models import User
 from orders.models import Treasury, Purchase
@@ -20,19 +22,20 @@ class ChargeWalletView(APIView):
     """
 
     def get(self, request, *args, **kwargs):
-        user = User.objects.get(id=int(kwargs['user_id']))
-        request.session['order_pay'] = {'user_id': user.id, 'price': kwargs['price']}
-        go_to_gateway_view(request, kwargs['price'], user.phone)
+        # user = User.objects.get(id=int(kwargs['user_id']))
+        # request.session['order_pay'] = {'user_id': user.id, 'price': kwargs['price']}
+        # go_to_gateway_view(request, kwargs['price'], user.phone)
+        return Response({"error": 'this endpoint currently inactive'})
 
 
 class VerifyPurchaseView(APIView):
 
     """
-    this view is gonna verify or reject the purchase
+    this view is going to verify or reject the purchase
     """
 
     def get(self, request):
-        return Response('this endpoint currently inactive')
+        return Response({"error": 'this endpoint currently inactive'})
 
 
 class BuyProductView(APIView):
@@ -47,17 +50,16 @@ class BuyProductView(APIView):
         product = Product.objects.get(pk=kwargs['product_id'])
         user = request.user
         if user.wallet.balance >= product.price and user.wallet.debt < 1:
-            print(user.wallet.balance)
-            print(product.price)
-            user.wallet.balance -= product.price
-            user.wallet.save()
-            product.owner.wallet.balance += calculate_product_profit(product.price, product.category.get_parent().income)
-            product.owner.wallet.save()
-            product.is_buyable = False
-            product.owner = user
-            product.save()
-            return Response('you bought the product successfully')
-        return Response("your balance isn't enough")
+            with transaction.atomic():
+                user.wallet.balance -= product.price
+                user.wallet.save()
+                product.owner.wallet.balance += calculate_product_profit(product.price, product.category.get_parent().income)
+                product.owner.wallet.save()
+                product.is_buyable = False
+                product.owner = user
+                product.save()
+            return Response({"detail": 'you bought the product successfully'})
+        return Response({"error": "your balance isn't enough"})
 
 
 class OfferRegisterView(APIView):
@@ -69,7 +71,8 @@ class OfferRegisterView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        auction_product = AuctionProduct.objects.get(id=request.data['id'])
+        # auction_product = AuctionProduct.objects.get(id=request.data['id'])
+        auction_product = AuctionProduct.objects.select_related('possible_user__wallet').get(id=request.data['id'])
         offer = int(request.data['offer'])
         best_price = max(auction_product.best_price, auction_product.base_price)
         if auction_product.is_presenting:
@@ -95,20 +98,21 @@ class OfferRegisterView(APIView):
                         possible_user.wallet.debt += offer - possible_user.wallet.balance
                         clean_offer = offer - possible_user.wallet.debt
 
-                    possible_user.wallet.balance -= clean_offer
-                    possible_user.wallet.blocked_balance += clean_offer
-                    possible_user.wallet.save()
+                    with transaction.atomic():
+                        possible_user.wallet.balance -= clean_offer
+                        possible_user.wallet.blocked_balance += clean_offer
+                        possible_user.wallet.save()
 
-                    auction_product.best_price = offer
-                    auction_product.possible_user = possible_user
-                    auction_product.save()
+                        auction_product.best_price = offer
+                        auction_product.possible_user = possible_user
+                        auction_product.save()
 
                     update_presenting_detail(auction_product)
 
-                    return Response('done')
-                return Response("please offer higher price")
-            return Response("you dont have that many")
-        return Response("this product isn't presenting")
+                    return Response({"detail": 'done'})
+                return Response({"error": "please offer higher price"})
+            return Response({"error": "you dont have that many"})
+        return Response({"error": "this product isn't presenting"})
 
 
 class CartPaymentView(APIView):
@@ -124,15 +128,15 @@ class CartPaymentView(APIView):
         if user.wallet.balance >= user.cart.total_price():
             for product in user.cart.product.all():
                 if product.is_buyable:
-                    user.wallet.balance -= product.price
-                    product.owner.wallet.balance += calculate_product_profit(product.price, product.category.get_parent().income)
-                    product.owner = user
-                    product.is_buyable = False
-                    user.wallet.save()
-                    product.owner.wallet.save()
-                    product.save()
-                    Purchase.objects.create(buyer=user, product=product, address_id=data['address'])
+                    with transaction.atomic():
+                        user.wallet.balance -= product.price
+                        product.owner.wallet.balance += calculate_product_profit(product.price, product.category.get_parent().income)
+                        product.owner = user
+                        product.is_buyable = False
+                        user.wallet.save()
+                        product.owner.wallet.save()
+                        product.save()
+                        Purchase.objects.create(buyer=user, product=product, address_id=data['address'])
             user.cart.product.clear()
-            return Response('the cart was purchase successfully')
-        return Response('you dont have enough money')
-
+            return Response({"detail": 'the cart was purchase successfully'})
+        return Response({"error": 'you dont have enough money'})

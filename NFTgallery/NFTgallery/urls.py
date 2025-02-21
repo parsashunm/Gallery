@@ -44,7 +44,7 @@ urlpatterns = [
     path('revoketoken/', RevokeTokenView.as_view(), name='revoke_token'),
     path('go-to-getway/<int:user_id>/<int:price>/', BuyProductView.as_view())
 ]
-if settings.DEBUG:
+if not settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

@@ -1,4 +1,5 @@
 import numpy as np
+from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
@@ -7,10 +8,9 @@ from rest_framework import status
 import cv2
 from skimage.metrics import structural_similarity as ssim
 from django.shortcuts import get_object_or_404
-
-from orders.models import Purchase
-from permissions import IsSpecificUser, IsPresenter, IsArtist
 #
+from permissions import IsSpecificUser, IsPresenter, IsArtist
+from orders.models import Purchase
 from utils import calculate_product_profit, update_presenting_detail
 from .serializers import (CreateAuctionProductSerializer, ProductsCreateSerializer, CreateAuctionSerializer,
                           ActionProductSerializer, ProductsSerializer, CartDetailSerializer, WishListSerializer,
@@ -95,7 +95,7 @@ class SetProductForPresentView(APIView):
         auction_product.is_presenting = True
         auction_product.save()
         update_presenting_detail(auction_product)
-        return Response('done')
+        return Response({"detail": 'done'})
 
 
 class CloseAuctionProduct(APIView):
@@ -104,35 +104,37 @@ class CloseAuctionProduct(APIView):
     queryset = AuctionProduct.objects.all()
 
     def post(self, request):
-        auction_product = get_object_or_404(AuctionProduct, is_presenting=True)
+        # auction_product = get_object_or_404(AuctionProduct, is_presenting=True)
+        auction_product = AuctionProduct.objects.select_related('possible_user__wallet', 'product__owner').get(is_presenting=True)
         if auction_product.possible_user:
             if auction_product.possible_user.wallet.debt == 0:
 
-                auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price
-                auction_product.product.owner.wallet.balance += calculate_product_profit(
-                    auction_product.best_price, auction_product.product.category.get_parent().income
-                )
-                auction_product.product.owner = auction_product.possible_user
-                auction_product.status = auction_product.StatusOption.sold
+                with transaction.atomic():
+                    auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price
+                    auction_product.product.owner.wallet.balance += calculate_product_profit(
+                        auction_product.best_price, auction_product.product.category.get_parent().income
+                    )
+                    auction_product.product.owner = auction_product.possible_user
+                    auction_product.status = auction_product.StatusOption.sold
 
-                Purchase.objects.create(buyer=auction_product.possible_user,
-                                        address='purchased in Auction', product=auction_product)
+                    Purchase.objects.create(buyer=auction_product.possible_user,
+                                            address='purchased in Auction', product=auction_product)
 
-                auction_product.save()
-                auction_product.product.save()
-                auction_product.possible_user.wallet.save()
-                auction_product.product.owner.wallet.save()
+                    auction_product.save()
+                    auction_product.product.save()
+                    auction_product.possible_user.wallet.save()
+                    auction_product.product.owner.wallet.save()
 
                 update_presenting_detail(auction_product=auction_product, empty=True)
-                return Response('done', status=status.HTTP_200_OK)
+                return Response({"detail": 'done'}, status=status.HTTP_200_OK)
 
             auction_product.possible_user.wallet.blocked_balance -= auction_product.best_price - auction_product.possible_user.wallet.debt
             auction_product.possible_user.wallet.save()
             auction_product.status = auction_product.StatusOption.unknown
 
             auction_product.save()
-            return Response('mojudi shoma kafi nemibashad lotfa hesab khod ra ta sa`at 00:00 sharj konid')
-        return Response('kharidari baraye in mahsol peyda nashod')
+            return Response({"detail": 'mojudi shoma kafi nemibashad lotfa hesab khod ra ta sa`at 00:00 sharj konid'})
+        return Response({"detail": 'kharidari baraye in mahsol peyda nashod'})
 
 
 class AddToCart(APIView):
@@ -148,8 +150,8 @@ class AddToCart(APIView):
         if product.is_buyable:
             card.product.add(product)
             card.save()
-            return Response('done')
-        return Response("product isn't buyable")
+            return Response({"detail": 'done'})
+        return Response({"error": "product isn't buyable"})
 
 
 class CartDetailView(APIView):
@@ -186,7 +188,7 @@ class RemoveFromCart(APIView):
         card = User.objects.get(pk=user_id).card
         product = Product.objects.get(pk=product_id)
         card.product.remove(product)
-        return Response('done')
+        return Response({"detail": 'done'})
 
 
 class AddToWishList(APIView):
@@ -202,7 +204,7 @@ class AddToWishList(APIView):
         product = Product.objects.get(pk=product_id)
         wishlist.product.add(product)
         wishlist.save()
-        return Response('done')
+        return Response({"detail": 'done'})
 
 
 class WishListDetailView(RetrieveAPIView):
@@ -231,7 +233,7 @@ class RemoveFromWishList(APIView):
         wishlist = User.objects.get(pk=user_id).wishlist
         product = Product.objects.get(pk=product_id)
         wishlist.product.remove(product)
-        return Response('done')
+        return Response({"detail": 'done'})
 
 
 class CompareImagesView(APIView):
@@ -257,6 +259,6 @@ class CompareImagesView(APIView):
             score, _ = ssim(img1, img2, full=True)
             similarity_percentage = score * 100
 
-            return Response({"similarity_percentage": f"{similarity_percentage:.2f}%"})
+            return Response({"detail": f"similarity_percentage : {similarity_percentage:.2f}%"})
 
         return Response(srz_data.errors, status=400)
