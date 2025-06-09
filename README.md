@@ -1,9 +1,3 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/README.md b/README.md
-index 330757814c5d9f1ca67b6652c04a36c6eebd5bf3..8ee36f4f3130ad5558837ba9c5b56143dbf768df 100644
---- a/README.md
-+++ b/README.md
-@@ -1,67 +1,48 @@
 -for any deploy you must use this commands:
 -</br>
 -python manage.py makemigrations
